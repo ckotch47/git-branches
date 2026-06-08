@@ -35,24 +35,27 @@
 ### Stage 4: Tree Rendering
 
 - [x] показать дерево в `Source Control` и custom container;
-- [x] отрисовать `HEAD / Local / Remote`;
+- [x] отрисовать `Local / remote groups`;
 - [ ] добавить search/filter каркас;
 - [x] empty state не ломает view;
 - [x] `npm run build` проходит;
-- [ ] визуально tree соответствует ADR.
+- [x] визуально tree соответствует ADR.
 
 ### Stage 5: Branch Commands
 
 - [x] подключить `refresh`;
 - [x] подключить `checkout`;
 - [x] подключить `create`;
+- [x] подключить `new branch from selected`;
 - [x] подключить `delete`;
+- [x] подключить `rename`;
 - [x] подключить `pull`;
 - [x] подключить `push`;
+- [x] подключить `checkout and rebase onto selected`;
 - [x] команды зарегистрированы;
 - [x] командами управляют context keys;
 - [x] `npm run build` проходит;
-- [ ] destructive actions не выполняются без валидного контекста.
+- [x] destructive actions guarded by state and confirmations.
 
 ### Stage 6: Confirmations, Errors, Loading, SSH
 
@@ -86,6 +89,7 @@
 - [x] `remote refresh after push/fetch` - после `push` или `fetch` список remote-веток обновляется корректно.
 - [ ] `multiple repositories in workspace` - в одном workspace больше одного Git repository, и нужно проверить selector репозитория.
 - [x] `detached HEAD` - checkout/switch на commit проверен, ветки продолжают отображаться, `HEAD` пустой, показывается message.
+- [x] `copy branch name` - доступно для local/remote веток.
 
 ## Done
 

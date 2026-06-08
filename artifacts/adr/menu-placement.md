@@ -15,6 +15,7 @@
 В toolbar view должны быть только основные действия:
 
 - refresh;
+- fetch all remotes;
 - repository selector, если repositories несколько;
 - возможно quick action для create branch, если это не ломает UX.
 
@@ -23,13 +24,11 @@
 На branch item доступны:
 
 - checkout;
-- compare with current;
-- create branch from selected, если это поддерживается;
+- new branch from selected;
+- rename branch;
 - delete branch;
 - merge into current;
 - rebase current onto selected.
-
-На `HEAD` item доступны только не-destructive actions, если они вообще уместны.
 
 На empty state item доступны только:
 

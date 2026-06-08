@@ -8,7 +8,6 @@
 
 Нужно различать:
 
-- `HEAD` item;
 - local branch;
 - remote branch;
 - empty repository state;
@@ -25,9 +24,16 @@
 ### Checkout
 
 - Available on: local branch, remote branch, selected valid ref.
-- Not available on: `HEAD` pseudo-node, empty state.
+- Not available on: empty state.
 - Effect: switch current branch; remote branch uses tracking checkout.
 - Validation: branch exists, repo clean-state checks only if command требует confirmation.
+
+### New Branch From Selected
+
+- Available on: local branch, remote branch.
+- Not available on: empty state, detached placeholder, current branch-only menu if no selected branch exists.
+- Effect: create a new local branch from selected source branch.
+- Validation: new name is valid, source branch exists.
 
 ### Create Branch
 
@@ -36,10 +42,17 @@
 - Effect: create new local branch.
 - Validation: new name is valid, branch does not already exist.
 
+### Rename Branch
+
+- Available on: non-current local branch.
+- Not available on: current branch, remote branch, empty state.
+- Effect: rename local branch.
+- Validation: new name is valid, target name does not already exist.
+
 ### Delete Branch
 
 - Available on: non-current local branch only.
-- Not available on: current branch, remote branch, `HEAD`.
+- Not available on: current branch, remote branch.
 - Effect: delete local branch.
 - Validation: branch is not checked out, optional merged check.
 - Confirmation: required before execution.
@@ -75,6 +88,14 @@
 - Direction: current branch is rebased onto selected branch.
 - Confirmation: required before execution.
 
+### Checkout and Rebase Onto Selected
+
+- Available on: selected local branch or remote branch.
+- Not available on: empty state, detached state.
+- Effect: checkout selected branch and rebase previously current branch onto it.
+- Validation: current branch exists and is local, target branch exists.
+- Confirmation: required before execution.
+
 ## Context Keys
 
 Нужны следующие ключи:
@@ -82,16 +103,13 @@
 - `branchManager.hasRepository`
 - `branchManager.isEmptyState`
 - `branchManager.isDetachedHead`
-- `branchManager.selectedIsCurrent`
-- `branchManager.selectedIsLocal`
-- `branchManager.selectedIsRemote`
+- `branchManager.canMerge`
+- `branchManager.canRebase`
 - `branchManager.canCheckout`
-- `branchManager.canCreateBranch`
 - `branchManager.canDeleteBranch`
 - `branchManager.canPull`
 - `branchManager.canPush`
-- `branchManager.canMerge`
-- `branchManager.canRebase`
+- `branchManager.canCreateBranch`
 
 ## Rules
 

@@ -22,13 +22,17 @@
   - оба view должны использовать один и тот же `TreeDataProvider`.
 - `contributes.commands`
   - `refresh`;
+  - `fetchRemotes`;
   - `checkout`;
   - `createBranch`;
+  - `createBranchFromSelected`;
   - `deleteBranch`;
+  - `renameBranch`;
   - `pull`;
   - `push`;
   - `mergeIntoCurrent`;
-  - `rebaseCurrentOntoSelected`.
+  - `rebaseCurrentOntoSelected`;
+  - `checkoutAndRebaseOntoSelected`.
 - `contributes.menus`
   - контекстное меню для tree items;
   - toolbar actions для view;
@@ -58,7 +62,8 @@
 - выбранный item является remote branch;
 - доступна ли операция `checkout`;
 - доступна ли операция `delete`;
-- доступна ли операция `merge/rebase`.
+- доступна ли операция `merge/rebase`;
+- доступны ли `fetchRemotes` и branch-local actions.
 
 ## Empty State
 

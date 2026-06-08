@@ -1,5 +1,6 @@
 import { runGit } from "../../infrastructure/git/gitCli";
 import type { BranchRef } from "../../domain/branch";
+import { ensureCleanWorkingTree } from "../../infrastructure/git/workingTree";
 
 async function localBranchExists(rootPath: string, branchName: string): Promise<boolean> {
   try {
@@ -11,6 +12,8 @@ async function localBranchExists(rootPath: string, branchName: string): Promise<
 }
 
 export async function checkoutBranch(rootPath: string, branch: BranchRef): Promise<void> {
+  await ensureCleanWorkingTree(rootPath);
+
   if (branch.isRemote) {
     const localName = branch.name.split("/").slice(1).join("/");
 

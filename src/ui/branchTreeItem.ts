@@ -23,6 +23,9 @@ export class BranchTreeItem extends TreeItem {
     } else if (itemType === "group" || itemType === "remoteGroup") {
       this.contextValue = "branchManager.group";
       this.iconPath = new ThemeIcon("folder-opened");
+      if (itemType === "remoteGroup" && remoteName) {
+        this.tooltip = `Remote group: ${remoteName}`;
+      }
     } else if (itemType === "message") {
       this.contextValue = "branchManager.message";
       this.iconPath = new ThemeIcon("info");

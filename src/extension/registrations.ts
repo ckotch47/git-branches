@@ -2,11 +2,15 @@ import type { ExtensionContext } from "vscode";
 import { commands, window } from "vscode";
 import { checkoutBranch } from "../application/branchActions/checkoutBranch";
 import { createBranch } from "../application/branchActions/createBranch";
+import { createBranchFromBranch } from "../application/branchActions/createBranchFromBranch";
+import { copyBranchName } from "../application/branchActions/copyBranchName";
+import { checkoutAndRebaseOntoBranch } from "../application/branchActions/checkoutAndRebaseOntoBranch";
 import { mergeBranch } from "../application/branchActions/mergeBranch";
 import { updateContextKeys } from "../application/contextKeys";
 import { deleteBranch } from "../application/branchActions/deleteBranch";
 import { pullBranch } from "../application/branchActions/pullBranch";
 import { rebaseCurrentOntoBranch } from "../application/branchActions/rebaseCurrentOntoBranch";
+import { renameBranch } from "../application/branchActions/renameBranch";
 import { refreshRemoteBranches } from "../application/branchActions/refreshRemoteBranches";
 import { pushBranch } from "../application/branchActions/pushBranch";
 import { normalizeGitError } from "../infrastructure/git/gitErrors";
@@ -63,14 +67,14 @@ async function runAction(
         }
 
         logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
-        await window.showErrorMessage(normalized.message);
+        await window.showErrorMessage(formatErrorMessage(normalized.message, normalized.details));
         return;
       }
     }
   } catch (error) {
     const normalized = normalizeGitError(error);
     logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
-    await window.showErrorMessage(normalized.message);
+    await window.showErrorMessage(formatErrorMessage(normalized.message, normalized.details));
   }
 }
 
@@ -88,6 +92,14 @@ function getRemoteName(branch: BranchTreeItem["branch"]): string {
   }
 
   return "origin";
+}
+
+function getSelectedBranch(item?: BranchTreeItem): BranchTreeItem["branch"] | null {
+  return item?.branch ?? null;
+}
+
+function getCurrentBranch(snapshot: Awaited<ReturnType<BranchViewProvider["getSnapshot"]>>): BranchTreeItem["branch"] | null {
+  return snapshot?.branches.find((candidate) => candidate.isCurrent) ?? null;
 }
 
 async function selectPushRemote(
@@ -137,6 +149,23 @@ async function refreshRemoteRefsBestEffort(
     const normalized = normalizeGitError(error);
     logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
   }
+}
+
+function formatErrorMessage(message: string, details?: string): string {
+  if (!details) {
+    return message;
+  }
+
+  const firstLine = details
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (!firstLine) {
+    return message;
+  }
+
+  return `${message}: ${firstLine}`;
 }
 
 export function registerExtensions(context: ExtensionContext): void {
@@ -199,6 +228,37 @@ export function registerExtensions(context: ExtensionContext): void {
         await checkoutBranch(repository.rootPath, branch);
       }, syncViewMessage);
     }),
+    commands.registerCommand(commandIds.createBranchFromSelected, async (item?: BranchTreeItem) => {
+      const repository = provider.getRepository();
+      const sourceBranch = getSelectedBranch(item);
+
+      if (!repository || !sourceBranch) {
+        return;
+      }
+
+      const branchName = await window.showInputBox({
+        title: "New branch from selected",
+        prompt: `Enter new branch name based on "${sourceBranch.name}"`,
+        ignoreFocusOut: true,
+      });
+
+      if (!branchName) {
+        return;
+      }
+
+      await runAction(provider, `New branch ${branchName} from ${sourceBranch.name}`, async () => {
+        await createBranchFromBranch(repository.rootPath, sourceBranch, branchName);
+      }, syncViewMessage);
+    }),
+    commands.registerCommand(commandIds.copyBranchName, async (item?: BranchTreeItem) => {
+      const branch = item?.branch;
+
+      if (!branch) {
+        return;
+      }
+
+      await copyBranchName(branch.name);
+    }),
     commands.registerCommand(commandIds.createBranch, async (item?: BranchTreeItem) => {
       const repository = provider.getRepository();
       if (!repository) {
@@ -219,6 +279,29 @@ export function registerExtensions(context: ExtensionContext): void {
         await createBranch(repository.rootPath, branchName);
       }, syncViewMessage);
       void item;
+    }),
+    commands.registerCommand(commandIds.renameBranch, async (item?: BranchTreeItem) => {
+      const repository = provider.getRepository();
+      const branch = getSelectedBranch(item);
+
+      if (!repository || !branch || branch.isCurrent || branch.isRemote) {
+        return;
+      }
+
+      const newBranchName = await window.showInputBox({
+        title: "Rename branch",
+        prompt: `Enter new name for "${branch.name}"`,
+        value: branch.name,
+        ignoreFocusOut: true,
+      });
+
+      if (!newBranchName || newBranchName === branch.name) {
+        return;
+      }
+
+      await runAction(provider, `Rename ${branch.name} to ${newBranchName}`, async () => {
+        await renameBranch(repository.rootPath, branch.name, newBranchName);
+      }, syncViewMessage);
     }),
     commands.registerCommand(commandIds.deleteBranch, async (item?: BranchTreeItem) => {
       const repository = provider.getRepository();
@@ -313,6 +396,44 @@ export function registerExtensions(context: ExtensionContext): void {
       await runAction(provider, `Merge ${branch.name}`, async () => {
         await mergeBranch(repository.rootPath, branch);
       }, syncViewMessage);
+    }),
+    commands.registerCommand(commandIds.checkoutAndRebaseOntoSelected, async (item?: BranchTreeItem) => {
+      const repository = provider.getRepository();
+      const targetBranch = getSelectedBranch(item);
+      const snapshot = await provider.getSnapshot();
+      const sourceBranch = getCurrentBranch(snapshot);
+
+      if (!repository || !targetBranch || !sourceBranch || sourceBranch.isRemote || snapshot?.state !== "normal") {
+        return;
+      }
+
+      if (sourceBranch.name === targetBranch.name) {
+        return;
+      }
+
+      const confirmed = await window.showWarningMessage(
+        `Checkout "${targetBranch.name}" and rebase "${sourceBranch.name}" onto it?`,
+        { modal: true },
+        "Checkout and Rebase",
+      );
+
+      if (confirmed !== "Checkout and Rebase") {
+        return;
+      }
+
+      try {
+        await withProgress(`Checkout and Rebase ${sourceBranch.name} onto ${targetBranch.name}`, async () => {
+          await checkoutAndRebaseOntoBranch(repository.rootPath, sourceBranch.name, targetBranch);
+        });
+      } catch (error) {
+        const normalized = normalizeGitError(error);
+        logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
+        await window.showErrorMessage(formatErrorMessage(normalized.message, normalized.details));
+      } finally {
+        provider.refresh();
+        syncViewMessage();
+        await updateContextKeys(await provider.getSnapshot());
+      }
     }),
     commands.registerCommand(commandIds.rebaseCurrentOntoSelected, async (item?: BranchTreeItem) => {
       const repository = provider.getRepository();

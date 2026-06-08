@@ -3,8 +3,12 @@ export type BranchCommand =
   | "fetchRemotes"
   | "checkout"
   | "createBranch"
+  | "createBranchFromSelected"
+  | "copyBranchName"
   | "deleteBranch"
+  | "renameBranch"
   | "pull"
   | "push"
   | "mergeIntoCurrent"
-  | "rebaseCurrentOntoSelected";
+  | "rebaseCurrentOntoSelected"
+  | "checkoutAndRebaseOntoSelected";

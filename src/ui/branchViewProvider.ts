@@ -89,19 +89,9 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
       const remoteNames = collectRemoteNames(branches);
 
       return [
-        new BranchTreeItem("HEAD", "root"),
         new BranchTreeItem("Local", "root"),
         ...remoteNames.map((remoteName) => new BranchTreeItem(remoteName, "remoteGroup", undefined, remoteName)),
       ];
-    }
-
-    if (element.label === "HEAD") {
-      if (snapshot.state === "detached") {
-        return [];
-      }
-
-      const current = branches.find((branch) => branch.isCurrent);
-      return current ? [this.toBranchItem(current)] : [];
     }
 
     if (element.label === "Local") {
@@ -151,10 +141,6 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
     const aheadBehind = formatAheadBehind(branch);
     if (aheadBehind) {
       descriptionParts.push(aheadBehind);
-    }
-
-    if (branch.isRemote && branch.remoteName) {
-      descriptionParts.push(branch.remoteName);
     }
 
     item.description = descriptionParts.join(" · ") || undefined;

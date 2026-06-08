@@ -7,7 +7,7 @@
 ## Current Branch
 
 - Exactly one local branch can be current in normal state.
-- Current branch is shown under `HEAD`.
+- Current branch is shown inline in Local tree.
 - Current branch cannot be deleted.
 - Current branch is the left side for compare.
 

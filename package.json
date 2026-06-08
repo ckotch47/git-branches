@@ -9,19 +9,6 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "activationEvents": [
-    "onView:branchManager.view",
-    "onView:branchManager.scmView",
-    "onCommand:branchManager.refresh",
-    "onCommand:branchManager.fetchRemotes",
-    "onCommand:branchManager.checkout",
-    "onCommand:branchManager.createBranch",
-    "onCommand:branchManager.deleteBranch",
-    "onCommand:branchManager.pull",
-    "onCommand:branchManager.push",
-    "onCommand:branchManager.mergeIntoCurrent",
-    "onCommand:branchManager.rebaseCurrentOntoSelected"
-  ],
   "contributes": {
     "commands": [
       {
@@ -43,8 +30,20 @@
         "title": "Create Branch"
       },
       {
+        "command": "branchManager.createBranchFromSelected",
+        "title": "New Branch From Selected"
+      },
+      {
+        "command": "branchManager.copyBranchName",
+        "title": "Copy Branch Name"
+      },
+      {
         "command": "branchManager.deleteBranch",
         "title": "Delete Branch"
+      },
+      {
+        "command": "branchManager.renameBranch",
+        "title": "Rename Branch"
       },
       {
         "command": "branchManager.pull",
@@ -61,6 +60,10 @@
       {
         "command": "branchManager.rebaseCurrentOntoSelected",
         "title": "Rebase Current onto Selected"
+      },
+      {
+        "command": "branchManager.checkoutAndRebaseOntoSelected",
+        "title": "Checkout and Rebase Onto Selected"
       }
     ],
     "viewsContainers": {
@@ -108,29 +111,49 @@
           "group": "branch@1"
         },
         {
+          "command": "branchManager.createBranchFromSelected",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "group": "branch@2"
+        },
+        {
+          "command": "branchManager.copyBranchName",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "group": "branch@3"
+        },
+        {
+          "command": "branchManager.renameBranch",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.nonCurrentBranch/",
+          "group": "branch@4"
+        },
+        {
           "command": "branchManager.deleteBranch",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.nonCurrentBranch/",
-          "group": "branch@2"
+          "group": "branch@5"
         },
         {
           "command": "branchManager.pull",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
-          "group": "branch@3"
+          "group": "branch@6"
         },
         {
           "command": "branchManager.push",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
-          "group": "branch@4"
+          "group": "branch@7"
         },
         {
           "command": "branchManager.mergeIntoCurrent",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canMerge",
-          "group": "branch@5"
+          "group": "branch@8"
         },
         {
           "command": "branchManager.rebaseCurrentOntoSelected",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
-          "group": "branch@6"
+          "group": "branch@9"
+        },
+        {
+          "command": "branchManager.checkoutAndRebaseOntoSelected",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
+          "group": "branch@10"
         },
         {
           "command": "branchManager.createBranch",

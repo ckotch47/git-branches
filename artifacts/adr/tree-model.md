@@ -8,9 +8,8 @@
 
 Базовое дерево:
 
-- `HEAD`
 - `Local`
-- `Remote`
+- remote groups by name
 
 Дополнительные разделы MVP не требуют persistent state, поэтому `Favorites` и `Recent` исключены.
 
@@ -47,7 +46,8 @@
 - Remote branches группируются по remote name.
 - Внутри каждого remote branches сортируются по branch name.
 - Если remote один, UI может показывать его без лишнего уровня вложенности, но логика группировки остается той же.
-- `HEAD` показывает текущую ветку или detached HEAD state.
+- Local branches show current branch inline with a badge or suffix.
+- Detached HEAD is represented by message/state, not by a separate `HEAD` tree node.
 - Empty repo state не должен ломать tree shape.
 
 ## Filtering

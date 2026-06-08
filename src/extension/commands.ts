@@ -3,9 +3,13 @@ export const commandIds = {
   fetchRemotes: "branchManager.fetchRemotes",
   checkout: "branchManager.checkout",
   createBranch: "branchManager.createBranch",
+  createBranchFromSelected: "branchManager.createBranchFromSelected",
+  copyBranchName: "branchManager.copyBranchName",
   deleteBranch: "branchManager.deleteBranch",
+  renameBranch: "branchManager.renameBranch",
   pull: "branchManager.pull",
   push: "branchManager.push",
   mergeIntoCurrent: "branchManager.mergeIntoCurrent",
   rebaseCurrentOntoSelected: "branchManager.rebaseCurrentOntoSelected",
+  checkoutAndRebaseOntoSelected: "branchManager.checkoutAndRebaseOntoSelected",
 } as const;

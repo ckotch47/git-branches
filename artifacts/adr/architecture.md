@@ -42,11 +42,8 @@
 
 Дерево:
 
-- `HEAD`
 - `Local`
-- `Remote`
-- `Favorites`
-- `Recent`
+- remote groups by name
 
 UI не должен знать деталей Git-команд. Он получает уже нормализованные узлы и вызывает команды через application layer.
 
@@ -56,10 +53,13 @@ UI не должен знать деталей Git-команд. Он получ
 
 - checkout branch;
 - create branch;
+- create branch from selected;
 - delete branch;
+- rename branch;
 - pull/push;
 - merge into current;
 - rebase current onto selected;
+- checkout and rebase onto selected;
 - refresh tree;
 - search/filter.
 
@@ -134,14 +134,16 @@ UI не должен знать деталей Git-команд. Он получ
 
 - `Checkout` работает по выбранной ветке.
 - `Create Branch` создаёт новую локальную ветку из текущего `HEAD` или из выбранной базы, если это явно поддержано.
+- `New Branch From Selected` создаёт новую локальную ветку от выбранной ветки.
 - `Delete Branch` удаляет локальную ветку только после проверки, что это не текущая ветка.
+- `Rename Branch` переименовывает только non-current local branch.
 - `Merge into Current` и `Rebase Current onto Selected` работают только для локальных веток и должны проходить предварительную валидацию.
+- `Checkout and Rebase Onto Selected` переключает на выбранную ветку и затем rebases предыдущую current branch onto selected.
 
 ## Implication of "No Persistent State"
 
 Если не хранить ничего между сессиями, то:
 
-- `Favorites` и `Recent` не входят в MVP;
 - порядок и группировка должны строиться только из текущего Git состояния;
 - любой "умный" индикатор должен вычисляться на лету или не показываться вовсе;
 - UI должен оставаться корректным после restart без миграций и синхронизации состояния.
@@ -152,8 +154,8 @@ UI не должен знать деталей Git-команд. Он получ
 - Частые refresh: легко получить лишние git-процессы.
 - Разные git-версии: часть команд должна иметь fallback.
 - Detached HEAD: нужен понятный empty/stateful view.
+- Detached HEAD: нужен понятный stateful view без отдельного `HEAD` tree node.
 - Remote ветки: требуется чёткая группировка по remote name.
-- Без persistent state нельзя сделать favorites/recent без отдельного слоя хранения.
 
 ## Mitigations
 
