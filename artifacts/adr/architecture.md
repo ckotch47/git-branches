@@ -22,23 +22,11 @@
 
 Для MVP использовать один extension host без внешних процессов кроме Git CLI. Внутри Git adapter держать изолированный API, чтобы позже можно было заменить реализацию без переписывания UI и бизнес-логики.
 
-## View Placement Decision
-
-Рекомендуется поддержать два места отображения одной и той же логики:
-
-- отдельный custom view container в Activity Bar для отладки и изоляции;
-- view внутри встроенного `Source Control` container для основного пользовательского сценария.
-
-Это не две разные реализации, а один и тот же `TreeDataProvider`/application layer, показанный в двух контейнерах.
-
 ## Proposed Architecture
 
 ### 1. UI layer
 
-Одна логическая панель `Git Branches`, которая может быть показана в двух контейнерах:
-
-- custom Activity Bar container;
-- `Source Control` container.
+Одна логическая панель `Git Branches` внутри встроенного `Source Control` container.
 
 Дерево:
 

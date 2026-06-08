@@ -13,13 +13,9 @@
 
 Нужны следующие разделы manifest:
 
-- `contributes.viewsContainers`
-  - custom Activity Bar container для отладки;
-  - опционально иконка контейнера.
 - `contributes.views`
-  - view внутри custom container;
   - view внутри `scm` container;
-  - оба view должны использовать один и тот же `TreeDataProvider`.
+  - один `TreeDataProvider` для дерева веток.
 - `contributes.commands`
   - `refresh`;
   - `fetchRemotes`;
@@ -45,8 +41,6 @@
 
 Нужно сразу зафиксировать стабильные id:
 
-- container id для Activity Bar;
-- view id для custom container;
 - view id для `scm`;
 - command ids.
 
@@ -67,7 +61,7 @@
 
 ## Empty State
 
-Для пустого состояния в `scm` view и custom view нужен единый подход:
+Для пустого состояния в `scm` view нужен единый подход:
 
 - показать, что repository не найден;
 - показать, что нужно открыть папку или инициализировать Git;
@@ -77,7 +71,6 @@
 
 Такая структура делает extension управляемым:
 
-- UI можно отлаживать в изолированном container;
 - рабочий сценарий доступен прямо в Source Control;
-- одна логика обслуживает оба места;
-- нет дублирования бизнес-логики между двумя view.
+- одна логика обслуживает единственный view;
+- нет дублирования бизнес-логики между разными контейнерами.

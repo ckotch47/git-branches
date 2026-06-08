@@ -1,6 +1,6 @@
 {
   "name": "vscode-branch-manager",
-  "displayName": "VSCode Branch Manager",
+  "displayName": "Git Branches",
   "description": "Branch-focused Git management for VS Code.",
   "version": "0.0.1",
   "private": true,
@@ -66,22 +66,7 @@
         "title": "Checkout and Rebase Onto Selected"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "branchManagerContainer",
-          "title": "Git Branches",
-          "icon": "resources/branch-manager.svg"
-        }
-      ]
-    },
     "views": {
-      "branchManagerContainer": [
-        {
-          "id": "branchManager.view",
-          "name": "Branches"
-        }
-      ],
       "scm": [
         {
           "id": "branchManager.scmView",
@@ -93,13 +78,13 @@
       "view/title": [
         {
           "command": "branchManager.refresh",
-          "when": "view == branchManager.view || view == branchManager.scmView",
+          "when": "view == branchManager.scmView",
           "group": "navigation",
           "icon": "$(refresh)"
         },
         {
           "command": "branchManager.fetchRemotes",
-          "when": "view == branchManager.view || view == branchManager.scmView",
+          "when": "view == branchManager.scmView",
           "group": "navigation@2",
           "icon": "$(cloud-download)"
         }
@@ -107,62 +92,62 @@
       "view/item/context": [
         {
           "command": "branchManager.checkout",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
           "group": "branch@1"
         },
         {
           "command": "branchManager.createBranchFromSelected",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
           "group": "branch@2"
         },
         {
           "command": "branchManager.copyBranchName",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
           "group": "branch@3"
         },
         {
           "command": "branchManager.renameBranch",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.nonCurrentBranch/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.nonCurrentBranch/",
           "group": "branch@4"
         },
         {
           "command": "branchManager.deleteBranch",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.nonCurrentBranch/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.nonCurrentBranch/",
           "group": "branch@5"
         },
         {
           "command": "branchManager.pull",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
           "group": "branch@6"
         },
         {
           "command": "branchManager.push",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
           "group": "branch@7"
         },
         {
           "command": "branchManager.mergeIntoCurrent",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canMerge",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canMerge",
           "group": "branch@8"
         },
         {
           "command": "branchManager.rebaseCurrentOntoSelected",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
           "group": "branch@9"
         },
         {
           "command": "branchManager.checkoutAndRebaseOntoSelected",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
           "group": "branch@10"
         },
         {
           "command": "branchManager.createBranch",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
           "group": "root@1"
         },
         {
           "command": "branchManager.fetchRemotes",
-          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
           "group": "root@2"
         }
       ]
