@@ -7,9 +7,9 @@ export interface BranchRef {
   isCurrent: boolean;
   isRemote: boolean;
   remoteName?: string;
+  upstream?: string;
   ahead?: number;
   behind?: number;
   lastCommitMessage?: string;
   lastCommitDate?: Date;
 }
-

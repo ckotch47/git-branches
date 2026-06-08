@@ -27,7 +27,6 @@
   - `deleteBranch`;
   - `pull`;
   - `push`;
-  - `compareWithCurrent`;
   - `mergeIntoCurrent`;
   - `rebaseCurrentOntoSelected`.
 - `contributes.menus`

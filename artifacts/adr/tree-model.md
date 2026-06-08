@@ -38,7 +38,6 @@
 - `lastCommitDate`
 - `canCheckout`
 - `canDelete`
-- `canCompare`
 - `canMerge`
 - `canRebase`
 

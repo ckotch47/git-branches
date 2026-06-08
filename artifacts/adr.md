@@ -8,7 +8,6 @@
 - [Repository Discovery and Context](adr/repository-discovery.md)
 - [Repository Selector UX](adr/repository-selector-ux.md)
 - [Tree Model and Normalization](adr/tree-model.md)
-- [Compare Semantics](adr/compare-semantics.md)
 - [Menu Placement](adr/menu-placement.md)
 - [Module Boundaries](adr/module-boundaries.md)
 - [Loading and Progress](adr/loading-progress.md)

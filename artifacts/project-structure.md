@@ -36,7 +36,6 @@ src/
       deleteBranch.ts
       pullBranch.ts
       pushBranch.ts
-      compareBranch.ts
       mergeBranch.ts
       rebaseBranch.ts
     repositorySelection.ts

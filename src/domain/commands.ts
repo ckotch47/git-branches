@@ -5,7 +5,5 @@ export type BranchCommand =
   | "deleteBranch"
   | "pull"
   | "push"
-  | "compareWithCurrent"
   | "mergeIntoCurrent"
   | "rebaseCurrentOntoSelected";
-

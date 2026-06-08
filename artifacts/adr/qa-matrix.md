@@ -24,9 +24,9 @@
 | One Git repository | Tree opens directly for that repository |
 | Multiple Git repositories | Selector is shown and tree is built only for selected repository |
 | Detached HEAD | HEAD node shows detached state, branch actions are restricted |
-| Local branch selected | Checkout, compare, merge, rebase availability is evaluated correctly |
-| Remote branch selected | Compare is available, local destructive actions are restricted |
-| Current branch selected | Delete is disabled, compare with self is disabled |
+| Local branch selected | Checkout, merge, rebase availability is evaluated correctly |
+| Remote branch selected | Local destructive actions are restricted |
+| Current branch selected | Delete is disabled |
 | Delete branch | Confirmation dialog is shown before execution |
 | Merge into current | Confirmation dialog is shown before execution |
 | Rebase current onto selected | Confirmation dialog is shown before execution |
@@ -68,11 +68,6 @@
 
 - Executes on current local branch.
 - Missing upstream produces a clear action-oriented error.
-
-### Compare with Current
-
-- Opens built-in diff viewer.
-- Direction is current vs selected.
 
 ### Merge into Current
 

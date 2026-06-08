@@ -3,4 +3,3 @@ export interface RepositoryContext {
   displayName: string;
   isGitRepository: boolean;
 }
-

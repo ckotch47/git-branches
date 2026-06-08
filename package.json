@@ -18,7 +18,6 @@
     "onCommand:branchManager.deleteBranch",
     "onCommand:branchManager.pull",
     "onCommand:branchManager.push",
-    "onCommand:branchManager.compareWithCurrent",
     "onCommand:branchManager.mergeIntoCurrent",
     "onCommand:branchManager.rebaseCurrentOntoSelected"
   ],
@@ -26,39 +25,35 @@
     "commands": [
       {
         "command": "branchManager.refresh",
-        "title": "Branch Manager: Refresh"
+        "title": "Refresh"
       },
       {
         "command": "branchManager.checkout",
-        "title": "Branch Manager: Checkout"
+        "title": "Checkout"
       },
       {
         "command": "branchManager.createBranch",
-        "title": "Branch Manager: Create Branch"
+        "title": "Create Branch"
       },
       {
         "command": "branchManager.deleteBranch",
-        "title": "Branch Manager: Delete Branch"
+        "title": "Delete Branch"
       },
       {
         "command": "branchManager.pull",
-        "title": "Branch Manager: Pull"
+        "title": "Pull"
       },
       {
         "command": "branchManager.push",
-        "title": "Branch Manager: Push"
-      },
-      {
-        "command": "branchManager.compareWithCurrent",
-        "title": "Branch Manager: Compare with Current"
+        "title": "Push"
       },
       {
         "command": "branchManager.mergeIntoCurrent",
-        "title": "Branch Manager: Merge into Current"
+        "title": "Merge into Current"
       },
       {
         "command": "branchManager.rebaseCurrentOntoSelected",
-        "title": "Branch Manager: Rebase Current onto Selected"
+        "title": "Rebase Current onto Selected"
       }
     ],
     "viewsContainers": {
@@ -90,6 +85,33 @@
           "command": "branchManager.refresh",
           "when": "view == branchManager.view || view == branchManager.scmView",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "branchManager.checkout",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "group": "branch@1"
+        },
+        {
+          "command": "branchManager.deleteBranch",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.nonCurrentBranch/",
+          "group": "branch@2"
+        },
+        {
+          "command": "branchManager.pull",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "group": "branch@3"
+        },
+        {
+          "command": "branchManager.push",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "group": "branch@4"
+        },
+        {
+          "command": "branchManager.createBranch",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
+          "group": "root@1"
         }
       ]
     }

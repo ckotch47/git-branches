@@ -5,8 +5,6 @@ export const commandIds = {
   deleteBranch: "branchManager.deleteBranch",
   pull: "branchManager.pull",
   push: "branchManager.push",
-  compareWithCurrent: "branchManager.compareWithCurrent",
   mergeIntoCurrent: "branchManager.mergeIntoCurrent",
   rebaseCurrentOntoSelected: "branchManager.rebaseCurrentOntoSelected",
 } as const;
-

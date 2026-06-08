@@ -58,7 +58,6 @@ UI не должен знать деталей Git-команд. Он получ
 - create branch;
 - delete branch;
 - pull/push;
-- compare with current;
 - merge into current;
 - rebase current onto selected;
 - refresh tree;
@@ -136,7 +135,6 @@ UI не должен знать деталей Git-команд. Он получ
 - `Checkout` работает по выбранной ветке.
 - `Create Branch` создаёт новую локальную ветку из текущего `HEAD` или из выбранной базы, если это явно поддержано.
 - `Delete Branch` удаляет локальную ветку только после проверки, что это не текущая ветка.
-- `Compare with Current` сравнивает выбранную ветку с текущей через встроенный diff viewer.
 - `Merge into Current` и `Rebase Current onto Selected` работают только для локальных веток и должны проходить предварительную валидацию.
 
 ## Implication of "No Persistent State"
@@ -182,7 +180,6 @@ UI не должен знать деталей Git-команд. Он получ
 
 - merge;
 - rebase;
-- compare branches.
 
 ### Version 3
 

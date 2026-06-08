@@ -18,52 +18,52 @@
 
 ### Stage 2: Repository Discovery
 
-- [ ] определить active repository;
-- [ ] поддержать multi-repo selector;
-- [ ] корректно обрабатывать empty state;
-- [ ] корректно обрабатывать detached HEAD;
-- [ ] `npm run build` проходит после изменений.
+- [x] определить active repository;
+- [x] поддержать multi-repo selector;
+- [x] корректно обрабатывать empty state;
+- [x] корректно обрабатывать detached HEAD;
+- [x] `npm run build` проходит после изменений.
 
 ### Stage 3: Git Adapter and Snapshot
 
-- [ ] получить branches/current/metadata из Git;
-- [ ] нормализовать raw Git данные в snapshot;
-- [ ] не хранить persistent state;
-- [ ] `npm run build` проходит.
+- [x] получить branches/current данные из Git;
+- [x] получить полный branch metadata из Git;
+- [x] нормализовать raw Git данные в snapshot;
+- [x] не хранить persistent state;
+- [x] `npm run build` проходит.
 
 ### Stage 4: Tree Rendering
 
-- [ ] показать дерево в `Source Control` и custom container;
-- [ ] отрисовать `HEAD / Local / Remote`;
+- [x] показать дерево в `Source Control` и custom container;
+- [x] отрисовать `HEAD / Local / Remote`;
 - [ ] добавить search/filter каркас;
-- [ ] empty state не ломает view;
-- [ ] `npm run build` проходит;
+- [x] empty state не ломает view;
+- [x] `npm run build` проходит;
 - [ ] визуально tree соответствует ADR.
 
 ### Stage 5: Branch Commands
 
-- [ ] подключить `refresh`;
-- [ ] подключить `checkout`;
-- [ ] подключить `create`;
-- [ ] подключить `delete`;
-- [ ] подключить `pull`;
-- [ ] подключить `push`;
-- [ ] подключить `compare`;
-- [ ] команды зарегистрированы;
-- [ ] командами управляют context keys;
-- [ ] `npm run build` проходит;
+- [x] подключить `refresh`;
+- [x] подключить `checkout`;
+- [x] подключить `create`;
+- [x] подключить `delete`;
+- [x] подключить `pull`;
+- [x] подключить `push`;
+- [x] команды зарегистрированы;
+- [x] командами управляют context keys;
+- [x] `npm run build` проходит;
 - [ ] destructive actions не выполняются без валидного контекста.
 
 ### Stage 6: Confirmations, Errors, Loading, SSH
 
 - [ ] добавить confirmation dialogs;
-- [ ] нормализовать ошибки;
-- [ ] подключить progress/loading;
-- [ ] учесть SSH/passphrase failures;
+- [x] нормализовать ошибки;
+- [x] подключить progress/loading;
+- [x] учесть SSH/passphrase failures;
 - [ ] delete/merge/rebase требуют подтверждения;
 - [ ] ошибки не оставляют partial state;
-- [ ] auth failures показываются понятно;
-- [ ] `npm run build` проходит.
+- [x] auth failures показываются понятно;
+- [x] `npm run build` проходит.
 
 ### Stage 7: QA Checks
 

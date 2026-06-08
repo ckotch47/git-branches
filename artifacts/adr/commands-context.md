@@ -26,7 +26,7 @@
 
 - Available on: local branch, remote branch, selected valid ref.
 - Not available on: `HEAD` pseudo-node, empty state.
-- Effect: switch current branch.
+- Effect: switch current branch; remote branch uses tracking checkout.
 - Validation: branch exists, repo clean-state checks only if command требует confirmation.
 
 ### Create Branch
@@ -38,7 +38,7 @@
 
 ### Delete Branch
 
-- Available on: local branch only.
+- Available on: non-current local branch only.
 - Not available on: current branch, remote branch, `HEAD`.
 - Effect: delete local branch.
 - Validation: branch is not checked out, optional merged check.
@@ -46,25 +46,17 @@
 
 ### Pull
 
-- Available on: repository context with current branch.
+- Available on: selected local branch or current branch fallback.
 - Not available on: empty state.
-- Effect: `git pull` in current branch.
+- Effect: update the selected local branch from its upstream.
 - Validation: upstream may be missing; if so, show clear error or setup prompt.
 
 ### Push
 
-- Available on: current local branch.
+- Available on: selected local branch or current local branch fallback.
 - Not available on: remote branch only, empty state.
-- Effect: `git push`.
-- Validation: upstream may be missing; if so, setup flow or error.
-
-### Compare with Current
-
-- Available on: selected branch different from current branch.
-- Not available on: current branch itself.
-- Effect: open diff viewer for `current` vs `selected`.
-- Validation: both refs resolved.
-- Direction: current is left side, selected is right side.
+- Effect: push the selected local branch to its remote.
+- Validation: remote/upstream may be missing; if so, setup flow or error.
 
 ### Merge into Current
 
@@ -98,7 +90,6 @@
 - `branchManager.canDeleteBranch`
 - `branchManager.canPull`
 - `branchManager.canPush`
-- `branchManager.canCompare`
 - `branchManager.canMerge`
 - `branchManager.canRebase`
 

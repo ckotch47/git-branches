@@ -10,8 +10,6 @@ export const contextKeys = {
   canDeleteBranch: "branchManager.canDeleteBranch",
   canPull: "branchManager.canPull",
   canPush: "branchManager.canPush",
-  canCompare: "branchManager.canCompare",
   canMerge: "branchManager.canMerge",
   canRebase: "branchManager.canRebase",
 } as const;
-
