@@ -170,23 +170,15 @@ function formatErrorMessage(message: string, details?: string): string {
 
 export function registerExtensions(context: ExtensionContext): void {
   const provider = new BranchViewProvider();
-  const branchTreeView = window.createTreeView("branchManager.view", {
-    treeDataProvider: provider,
-    showCollapseAll: true,
-  });
   const scmTreeView = window.createTreeView("branchManager.scmView", {
     treeDataProvider: provider,
     showCollapseAll: true,
   });
 
-  context.subscriptions.push(
-    branchTreeView,
-    scmTreeView,
-  );
+  context.subscriptions.push(scmTreeView);
 
   const syncViewMessage = (): void => {
     const message = provider.getViewMessage();
-    branchTreeView.message = message;
     scmTreeView.message = message;
   };
 

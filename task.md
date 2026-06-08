@@ -2,7 +2,7 @@
 
 ## Current Goal
 
-Построить VSCode Branch Manager Extension по согласованной архитектуре и MVP scope.
+Построить Git Branches extension по согласованной архитектуре и MVP scope.
 
 ## Checklist
 
@@ -14,7 +14,7 @@
 - [x] empty `TreeDataProvider`;
 - [x] базовая сборка проекта;
 - [x] `npm run build` проходит;
-- [x] `branchManager.view` и `branchManager.scmView` регистрируются.
+- [x] `branchManager.scmView` регистрируется.
 
 ### Stage 2: Repository Discovery
 

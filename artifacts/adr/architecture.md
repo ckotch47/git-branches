@@ -1,4 +1,4 @@
-# ADR: Branch Manager Architecture
+# ADR: Git Branches Architecture
 
 ## Context
 

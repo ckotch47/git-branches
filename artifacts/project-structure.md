@@ -1,4 +1,4 @@
-# Project Structure: VSCode Branch Manager Extension
+# Project Structure: Git Branches Extension
 
 ## Goal
 

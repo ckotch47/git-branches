@@ -1,4 +1,4 @@
-# ADR Index: VSCode Branch Manager Extension
+# ADR Index: Git Branches Extension
 
 Документы по решению разнесены по темам:
 

@@ -20,7 +20,7 @@ export async function selectRepository(
     })),
     {
       title: "Select Git repository",
-      placeHolder: "Choose repository for Branch Manager",
+      placeHolder: "Choose repository for Git Branches",
       ignoreFocusOut: true,
     },
   );
