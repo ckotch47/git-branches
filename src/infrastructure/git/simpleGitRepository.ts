@@ -113,4 +113,19 @@ export class SimpleGitRepository implements GitRepository {
 
     return branches;
   }
+
+  async getRemotes(rootPath: string): Promise<string[]> {
+    const { stdout } = await execFileAsync("git", [
+      "-C",
+      rootPath,
+      "remote",
+    ]);
+
+    return stdout
+      .toString()
+      .split("\n")
+      .map((remote) => remote.trim())
+      .filter(Boolean)
+      .sort((left, right) => left.localeCompare(right));
+  }
 }

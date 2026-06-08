@@ -49,8 +49,8 @@ async function runAction(
 
         if (normalized.code === "git_auth_error" && !retried) {
           const passphrase = await window.showInputBox({
-            title: `${title}: SSH passphrase`,
             prompt: "Enter SSH passphrase",
+            placeHolder: "SSH passphrase",
             password: true,
             ignoreFocusOut: true,
           });
@@ -90,6 +90,55 @@ function getRemoteName(branch: BranchTreeItem["branch"]): string {
   return "origin";
 }
 
+async function selectPushRemote(
+  provider: BranchViewProvider,
+  branch: BranchTreeItem["branch"],
+): Promise<string> {
+  const preferredRemote = getRemoteName(branch);
+  const remotes = await provider.getRemotes();
+
+  if (remotes.length <= 1) {
+    return remotes[0] ?? preferredRemote;
+  }
+
+  const orderedRemotes = [
+    preferredRemote,
+    ...remotes.filter((remote) => remote !== preferredRemote),
+  ].filter((remote, index, list) => list.indexOf(remote) === index);
+
+  const selected = await window.showQuickPick(
+    orderedRemotes.map((remote) => ({
+      label: remote,
+      description: remote === preferredRemote ? "default" : undefined,
+    })),
+    {
+      title: "Select remote",
+      placeHolder: "Choose remote to push to",
+      ignoreFocusOut: true,
+    },
+  );
+
+  return selected?.label ?? preferredRemote;
+}
+
+async function refreshRemoteRefsBestEffort(
+  provider: BranchViewProvider,
+  auth?: ActionAuth,
+): Promise<void> {
+  const repository = provider.getRepository();
+
+  if (!repository) {
+    return;
+  }
+
+  try {
+    await refreshRemoteBranches(repository.rootPath, auth?.sshPassphrase);
+  } catch (error) {
+    const normalized = normalizeGitError(error);
+    logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
+  }
+}
+
 export function registerExtensions(context: ExtensionContext): void {
   const provider = new BranchViewProvider();
   const branchTreeView = window.createTreeView("branchManager.view", {
@@ -123,9 +172,20 @@ export function registerExtensions(context: ExtensionContext): void {
 
   context.subscriptions.push(
     commands.registerCommand(commandIds.refresh, async () => {
+      await refreshRemoteRefsBestEffort(provider);
       provider.refresh();
       syncViewMessage();
       await updateContextKeys(await provider.getSnapshot());
+    }),
+    commands.registerCommand(commandIds.fetchRemotes, async () => {
+      await runAction(provider, "Fetch All Remotes", async (auth) => {
+        const repository = provider.getRepository();
+        if (!repository) {
+          return;
+        }
+
+        await refreshRemoteBranches(repository.rootPath, auth?.sshPassphrase);
+      }, syncViewMessage);
     }),
     commands.registerCommand(commandIds.checkout, async (item?: BranchTreeItem) => {
       const repository = provider.getRepository();
@@ -212,21 +272,20 @@ export function registerExtensions(context: ExtensionContext): void {
         return;
       }
 
+      const snapshot = await provider.getSnapshot();
+      const branch =
+        item?.branch ?? snapshot?.branches.find((candidate) => candidate.isCurrent) ?? null;
+
+      if (!branch || branch.isRemote) {
+        return;
+      }
+
+      const remoteName = await selectPushRemote(provider, branch);
+
       await runAction(provider, "Push", async (auth) => {
-        const snapshot = await provider.getSnapshot();
-        const branch =
-          item?.branch ?? snapshot?.branches.find((candidate) => candidate.isCurrent) ?? null;
-
-        if (!branch || branch.isRemote) {
-          return;
-        }
-
-        await pushBranch(repository.rootPath, branch.name, getRemoteName(branch), auth?.sshPassphrase);
+        await pushBranch(repository.rootPath, branch.name, remoteName, auth?.sshPassphrase);
       }, async (auth) => {
-        const repository = provider.getRepository();
-        if (repository) {
-          await refreshRemoteBranches(repository.rootPath, auth?.sshPassphrase);
-        }
+        await refreshRemoteRefsBestEffort(provider, auth);
         provider.refresh();
         syncViewMessage();
       });

@@ -1,5 +1,6 @@
 export type BranchCommand =
   | "refresh"
+  | "fetchRemotes"
   | "checkout"
   | "createBranch"
   | "deleteBranch"

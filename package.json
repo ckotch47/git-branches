@@ -13,6 +13,7 @@
     "onView:branchManager.view",
     "onView:branchManager.scmView",
     "onCommand:branchManager.refresh",
+    "onCommand:branchManager.fetchRemotes",
     "onCommand:branchManager.checkout",
     "onCommand:branchManager.createBranch",
     "onCommand:branchManager.deleteBranch",
@@ -25,7 +26,13 @@
     "commands": [
       {
         "command": "branchManager.refresh",
-        "title": "Refresh"
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "branchManager.fetchRemotes",
+        "title": "Fetch All Remotes",
+        "icon": "$(cloud-download)"
       },
       {
         "command": "branchManager.checkout",
@@ -84,7 +91,14 @@
         {
           "command": "branchManager.refresh",
           "when": "view == branchManager.view || view == branchManager.scmView",
-          "group": "navigation"
+          "group": "navigation",
+          "icon": "$(refresh)"
+        },
+        {
+          "command": "branchManager.fetchRemotes",
+          "when": "view == branchManager.view || view == branchManager.scmView",
+          "group": "navigation@2",
+          "icon": "$(cloud-download)"
         }
       ],
       "view/item/context": [
@@ -122,6 +136,11 @@
           "command": "branchManager.createBranch",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
           "group": "root@1"
+        },
+        {
+          "command": "branchManager.fetchRemotes",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
+          "group": "root@2"
         }
       ]
     }

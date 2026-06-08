@@ -1,5 +1,6 @@
 export const commandIds = {
   refresh: "branchManager.refresh",
+  fetchRemotes: "branchManager.fetchRemotes",
   checkout: "branchManager.checkout",
   createBranch: "branchManager.createBranch",
   deleteBranch: "branchManager.deleteBranch",

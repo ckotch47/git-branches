@@ -61,6 +61,18 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
     return this.ensureSnapshot();
   }
 
+  async getRemotes(): Promise<string[]> {
+    if (!this.state.repository) {
+      return [];
+    }
+
+    try {
+      return await this.gitRepository.getRemotes(this.state.repository.rootPath);
+    } catch {
+      return [];
+    }
+  }
+
   async getChildren(element?: BranchTreeItem): Promise<BranchTreeItem[]> {
     if (!this.state.repository) {
       return [];
@@ -74,10 +86,12 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
         return [];
       }
 
+      const remoteNames = collectRemoteNames(branches);
+
       return [
         new BranchTreeItem("HEAD", "root"),
         new BranchTreeItem("Local", "root"),
-        new BranchTreeItem("Remote", "root"),
+        ...remoteNames.map((remoteName) => new BranchTreeItem(remoteName, "remoteGroup", undefined, remoteName)),
       ];
     }
 
@@ -93,12 +107,14 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
     if (element.label === "Local") {
       return branches
         .filter((branch) => !branch.isRemote)
+        .sort((left, right) => left.displayName.localeCompare(right.displayName))
         .map((branch) => this.toBranchItem(branch));
     }
 
-    if (element.label === "Remote") {
+    if (element.itemType === "remoteGroup" && element.remoteName) {
       return branches
-        .filter((branch) => branch.isRemote)
+        .filter((branch) => branch.isRemote && branch.remoteName === element.remoteName)
+        .sort((left, right) => left.displayName.localeCompare(right.displayName))
         .map((branch) => this.toBranchItem(branch));
     }
 
@@ -123,7 +139,76 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   private toBranchItem(branch: BranchRef): BranchTreeItem {
-    const label = branch.isCurrent ? `${branch.displayName} (current)` : branch.displayName;
-    return new BranchTreeItem(label, "branch", branch);
+    const label = branch.isRemote ? shortRemoteBranchName(branch.name) : branch.displayName;
+    const item = new BranchTreeItem(label, "branch", branch);
+
+    const descriptionParts: string[] = [];
+
+    if (branch.isCurrent) {
+      descriptionParts.push("current");
+    }
+
+    const aheadBehind = formatAheadBehind(branch);
+    if (aheadBehind) {
+      descriptionParts.push(aheadBehind);
+    }
+
+    if (branch.isRemote && branch.remoteName) {
+      descriptionParts.push(branch.remoteName);
+    }
+
+    item.description = descriptionParts.join(" · ") || undefined;
+    item.tooltip = buildBranchTooltip(branch, label);
+
+    return item;
   }
+}
+
+function collectRemoteNames(branches: BranchRef[]): string[] {
+  return branches
+    .filter((branch) => branch.isRemote)
+    .map((branch) => branch.remoteName ?? branch.name.split("/")[0] ?? "origin")
+    .filter((remoteName, index, list) => list.indexOf(remoteName) === index)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function shortRemoteBranchName(name: string): string {
+  return name.split("/").slice(1).join("/") || name;
+}
+
+function formatAheadBehind(branch: BranchRef): string {
+  const parts: string[] = [];
+
+  if (typeof branch.ahead === "number" && branch.ahead > 0) {
+    parts.push(`↑${branch.ahead}`);
+  }
+
+  if (typeof branch.behind === "number" && branch.behind > 0) {
+    parts.push(`↓${branch.behind}`);
+  }
+
+  return parts.join(" ");
+}
+
+function buildBranchTooltip(branch: BranchRef, label: string): string {
+  const lines: string[] = [`${label}`, `Full name: ${branch.name}`];
+
+  if (branch.upstream) {
+    lines.push(`Upstream: ${branch.upstream}`);
+  }
+
+  const aheadBehind = formatAheadBehind(branch);
+  if (aheadBehind) {
+    lines.push(`Status: ${aheadBehind}`);
+  }
+
+  if (branch.lastCommitMessage) {
+    lines.push(`Last commit: ${branch.lastCommitMessage}`);
+  }
+
+  if (branch.lastCommitDate) {
+    lines.push(`Updated: ${branch.lastCommitDate.toISOString()}`);
+  }
+
+  return lines.join("\n");
 }
