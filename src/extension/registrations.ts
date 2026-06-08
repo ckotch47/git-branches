@@ -2,9 +2,11 @@ import type { ExtensionContext } from "vscode";
 import { commands, window } from "vscode";
 import { checkoutBranch } from "../application/branchActions/checkoutBranch";
 import { createBranch } from "../application/branchActions/createBranch";
+import { mergeBranch } from "../application/branchActions/mergeBranch";
 import { updateContextKeys } from "../application/contextKeys";
 import { deleteBranch } from "../application/branchActions/deleteBranch";
 import { pullBranch } from "../application/branchActions/pullBranch";
+import { rebaseCurrentOntoBranch } from "../application/branchActions/rebaseCurrentOntoBranch";
 import { refreshRemoteBranches } from "../application/branchActions/refreshRemoteBranches";
 import { pushBranch } from "../application/branchActions/pushBranch";
 import { normalizeGitError } from "../infrastructure/git/gitErrors";
@@ -16,22 +18,55 @@ import { discoverRepositories } from "../infrastructure/vscode/repositoryDiscove
 import { BranchViewProvider } from "../ui/branchViewProvider";
 import type { BranchTreeItem } from "../ui/branchTreeItem";
 
+interface ActionAuth {
+  sshPassphrase?: string;
+}
+
 async function runAction(
   provider: BranchViewProvider,
   title: string,
-  action: () => Promise<void>,
-  afterSuccess?: () => Promise<void> | void,
+  action: (auth?: ActionAuth) => Promise<void>,
+  afterSuccess?: (auth?: ActionAuth) => Promise<void> | void,
 ): Promise<void> {
+  let auth: ActionAuth | undefined;
+  let retried = false;
+
   try {
-    await withProgress(title, action);
-    provider.refresh();
-    try {
-      await afterSuccess?.();
-    } catch (error) {
-      const normalized = normalizeGitError(error);
-      logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
+    while (true) {
+      try {
+        await withProgress(title, () => action(auth));
+        provider.refresh();
+        try {
+          await afterSuccess?.(auth);
+        } catch (error) {
+          const normalized = normalizeGitError(error);
+          logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
+        }
+        await updateContextKeys(await provider.getSnapshot());
+        return;
+      } catch (error) {
+        const normalized = normalizeGitError(error);
+
+        if (normalized.code === "git_auth_error" && !retried) {
+          const passphrase = await window.showInputBox({
+            title: `${title}: SSH passphrase`,
+            prompt: "Enter SSH passphrase",
+            password: true,
+            ignoreFocusOut: true,
+          });
+
+          if (passphrase !== undefined) {
+            auth = { sshPassphrase: passphrase };
+            retried = true;
+            continue;
+          }
+        }
+
+        logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
+        await window.showErrorMessage(normalized.message);
+        return;
+      }
     }
-    await updateContextKeys(await provider.getSnapshot());
   } catch (error) {
     const normalized = normalizeGitError(error);
     logOutput(`[${normalized.code}] ${normalized.message}${normalized.details ? `\n${normalized.details}` : ""}`);
@@ -153,7 +188,7 @@ export function registerExtensions(context: ExtensionContext): void {
         return;
       }
 
-      await runAction(provider, "Pull", async () => {
+      await runAction(provider, "Pull", async (auth) => {
         const snapshot = await provider.getSnapshot();
         const branch =
           item?.branch ?? snapshot?.branches.find((candidate) => candidate.isCurrent) ?? null;
@@ -167,6 +202,7 @@ export function registerExtensions(context: ExtensionContext): void {
           branch.name,
           getRemoteName(branch),
           branch.isCurrent,
+          auth?.sshPassphrase,
         );
       }, syncViewMessage);
     }),
@@ -176,7 +212,7 @@ export function registerExtensions(context: ExtensionContext): void {
         return;
       }
 
-      await runAction(provider, "Push", async () => {
+      await runAction(provider, "Push", async (auth) => {
         const snapshot = await provider.getSnapshot();
         const branch =
           item?.branch ?? snapshot?.branches.find((candidate) => candidate.isCurrent) ?? null;
@@ -185,16 +221,63 @@ export function registerExtensions(context: ExtensionContext): void {
           return;
         }
 
-        await pushBranch(repository.rootPath, branch.name, getRemoteName(branch));
-      }, async () => {
+        await pushBranch(repository.rootPath, branch.name, getRemoteName(branch), auth?.sshPassphrase);
+      }, async (auth) => {
         const repository = provider.getRepository();
         if (repository) {
-          await refreshRemoteBranches(repository.rootPath);
+          await refreshRemoteBranches(repository.rootPath, auth?.sshPassphrase);
         }
+        provider.refresh();
         syncViewMessage();
       });
     }),
-    commands.registerCommand(commandIds.mergeIntoCurrent, async () => {}),
-    commands.registerCommand(commandIds.rebaseCurrentOntoSelected, async () => {}),
+    commands.registerCommand(commandIds.mergeIntoCurrent, async (item?: BranchTreeItem) => {
+      const repository = provider.getRepository();
+      const branch = item?.branch;
+      const snapshot = await provider.getSnapshot();
+
+      if (!repository || !branch || branch.isCurrent || snapshot?.state !== "normal") {
+        return;
+      }
+
+      const currentBranch = snapshot?.currentBranch ?? "current branch";
+      const confirmed = await window.showWarningMessage(
+        `Merge "${branch.name}" into "${currentBranch}"?`,
+        { modal: true },
+        "Merge",
+      );
+
+      if (confirmed !== "Merge") {
+        return;
+      }
+
+      await runAction(provider, `Merge ${branch.name}`, async () => {
+        await mergeBranch(repository.rootPath, branch);
+      }, syncViewMessage);
+    }),
+    commands.registerCommand(commandIds.rebaseCurrentOntoSelected, async (item?: BranchTreeItem) => {
+      const repository = provider.getRepository();
+      const branch = item?.branch;
+      const snapshot = await provider.getSnapshot();
+
+      if (!repository || !branch || branch.isCurrent || snapshot?.state !== "normal") {
+        return;
+      }
+
+      const currentBranch = snapshot?.currentBranch ?? "current branch";
+      const confirmed = await window.showWarningMessage(
+        `Rebase "${currentBranch}" onto "${branch.name}"?`,
+        { modal: true },
+        "Rebase",
+      );
+
+      if (confirmed !== "Rebase") {
+        return;
+      }
+
+      await runAction(provider, `Rebase onto ${branch.name}`, async () => {
+        await rebaseCurrentOntoBranch(repository.rootPath, branch);
+      }, syncViewMessage);
+    }),
   );
 }

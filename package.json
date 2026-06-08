@@ -109,6 +109,16 @@
           "group": "branch@4"
         },
         {
+          "command": "branchManager.mergeIntoCurrent",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canMerge",
+          "group": "branch@5"
+        },
+        {
+          "command": "branchManager.rebaseCurrentOntoSelected",
+          "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem =~ /branchManager\\.(nonCurrentBranch|remoteBranch)/ && branchManager.canRebase",
+          "group": "branch@6"
+        },
+        {
           "command": "branchManager.createBranch",
           "when": "(view == branchManager.view || view == branchManager.scmView) && viewItem == branchManager.root",
           "group": "root@1"

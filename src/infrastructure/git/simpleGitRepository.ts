@@ -52,20 +52,24 @@ async function getAheadBehind(rootPath: string, branchName: string, upstream: st
     return {};
   }
 
-  const { stdout } = await execFileAsync("git", [
-    "-C",
-    rootPath,
-    "rev-list",
-    "--left-right",
-    "--count",
-    `${upstream}...${branchName}`,
-  ]);
+  try {
+    const { stdout } = await execFileAsync("git", [
+      "-C",
+      rootPath,
+      "rev-list",
+      "--left-right",
+      "--count",
+      `${upstream}...${branchName}`,
+    ]);
 
-  const [behindRaw = "0", aheadRaw = "0"] = stdout.toString().trim().split(/\s+/);
-  return {
-    behind: Number.parseInt(behindRaw, 10) || 0,
-    ahead: Number.parseInt(aheadRaw, 10) || 0,
-  };
+    const [behindRaw = "0", aheadRaw = "0"] = stdout.toString().trim().split(/\s+/);
+    return {
+      behind: Number.parseInt(behindRaw, 10) || 0,
+      ahead: Number.parseInt(aheadRaw, 10) || 0,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export class SimpleGitRepository implements GitRepository {

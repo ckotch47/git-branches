@@ -56,22 +56,36 @@
 
 ### Stage 6: Confirmations, Errors, Loading, SSH
 
-- [ ] добавить confirmation dialogs;
+- [x] добавить confirmation dialogs;
 - [x] нормализовать ошибки;
 - [x] подключить progress/loading;
 - [x] учесть SSH/passphrase failures;
-- [ ] delete/merge/rebase требуют подтверждения;
-- [ ] ошибки не оставляют partial state;
+- [x] delete/merge/rebase требуют подтверждения;
+- [x] ошибки не оставляют partial state;
 - [x] auth failures показываются понятно;
 - [x] `npm run build` проходит.
 
 ### Stage 7: QA Checks
 
-- [ ] пройтись по QA matrix;
-- [ ] подтвердить основные сценарии;
+- [x] проверить `checkout`;
+- [x] проверить `pull`;
+- [x] проверить `push`;
+- [x] проверить `delete`;
+- [x] проверить `merge`;
+- [x] проверить `rebase`;
+- [ ] пройтись по полной QA matrix;
+- [ ] подтвердить крайние сценарии;
 - [ ] сценарии из `artifacts/adr/qa-matrix.md` покрыты;
 - [ ] нет расхождений между ADR и реализацией;
 - [ ] можно выделить оставшиеся gaps.
+
+## Remaining Edge Cases
+
+- [x] `dirty working tree` - незакоммиченные изменения не ломают команды.
+- [ ] `missing/stale upstream` - у локальной ветки upstream отсутствует или устарел, и нужно убедиться, что это не ломает команды и расчёт статуса.
+- [x] `remote refresh after push/fetch` - после `push` или `fetch` список remote-веток обновляется корректно.
+- [ ] `multiple repositories in workspace` - в одном workspace больше одного Git repository, и нужно проверить selector репозитория.
+- [x] `detached HEAD` - checkout/switch на commit проверен, ветки продолжают отображаться, `HEAD` пустой, показывается message.
 
 ## Done
 

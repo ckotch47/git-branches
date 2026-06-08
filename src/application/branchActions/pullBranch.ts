@@ -5,11 +5,12 @@ export async function pullBranch(
   branchName: string,
   remoteName = "origin",
   isCurrent = false,
+  sshPassphrase?: string,
 ): Promise<void> {
   if (isCurrent) {
-    await runGit(rootPath, ["pull"]);
+    await runGit(rootPath, ["pull"], { sshPassphrase });
     return;
   }
 
-  await runGit(rootPath, ["fetch", remoteName, `${branchName}:${branchName}`]);
+  await runGit(rootPath, ["fetch", remoteName, `${branchName}:${branchName}`], { sshPassphrase });
 }

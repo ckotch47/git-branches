@@ -70,7 +70,7 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
     const branches = snapshot.branches;
 
     if (!element) {
-      if (snapshot.state !== "normal") {
+      if (snapshot.state === "empty") {
         return [];
       }
 

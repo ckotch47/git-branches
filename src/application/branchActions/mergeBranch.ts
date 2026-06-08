@@ -1,2 +1,6 @@
-export async function mergeBranch(): Promise<void> {}
+import type { BranchRef } from "../../domain/branch";
+import { runGit } from "../../infrastructure/git/gitCli";
 
+export async function mergeBranch(rootPath: string, target: BranchRef): Promise<void> {
+  await runGit(rootPath, ["merge", target.name]);
+}
