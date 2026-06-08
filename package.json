@@ -6,9 +6,21 @@
   "private": true,
   "main": "./out/extension/activate.js",
   "publisher": "local",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ckotch47/git-branches"
+  },
+  "license": "Unlicense",
   "engines": {
     "vscode": "^1.85.0"
   },
+  "files": [
+    "out/**",
+    "resources/**",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "contributes": {
     "commands": [
       {
