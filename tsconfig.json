@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "Node16",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "rootDir": "src",
+    "outDir": "out",
+    "strict": true,
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node", "vscode"]
+  },
+  "include": ["src"]
+}
+

@@ -1,0 +1,17 @@
+export const contextKeys = {
+  hasRepository: "branchManager.hasRepository",
+  isEmptyState: "branchManager.isEmptyState",
+  isDetachedHead: "branchManager.isDetachedHead",
+  selectedIsCurrent: "branchManager.selectedIsCurrent",
+  selectedIsLocal: "branchManager.selectedIsLocal",
+  selectedIsRemote: "branchManager.selectedIsRemote",
+  canCheckout: "branchManager.canCheckout",
+  canCreateBranch: "branchManager.canCreateBranch",
+  canDeleteBranch: "branchManager.canDeleteBranch",
+  canPull: "branchManager.canPull",
+  canPush: "branchManager.canPush",
+  canCompare: "branchManager.canCompare",
+  canMerge: "branchManager.canMerge",
+  canRebase: "branchManager.canRebase",
+} as const;
+

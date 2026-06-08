@@ -1,0 +1,106 @@
+{
+  "name": "vscode-branch-manager",
+  "displayName": "VSCode Branch Manager",
+  "description": "Branch-focused Git management for VS Code.",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./out/extension/activate.js",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onView:branchManager.view",
+    "onView:branchManager.scmView",
+    "onCommand:branchManager.refresh",
+    "onCommand:branchManager.checkout",
+    "onCommand:branchManager.createBranch",
+    "onCommand:branchManager.deleteBranch",
+    "onCommand:branchManager.pull",
+    "onCommand:branchManager.push",
+    "onCommand:branchManager.compareWithCurrent",
+    "onCommand:branchManager.mergeIntoCurrent",
+    "onCommand:branchManager.rebaseCurrentOntoSelected"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "branchManager.refresh",
+        "title": "Branch Manager: Refresh"
+      },
+      {
+        "command": "branchManager.checkout",
+        "title": "Branch Manager: Checkout"
+      },
+      {
+        "command": "branchManager.createBranch",
+        "title": "Branch Manager: Create Branch"
+      },
+      {
+        "command": "branchManager.deleteBranch",
+        "title": "Branch Manager: Delete Branch"
+      },
+      {
+        "command": "branchManager.pull",
+        "title": "Branch Manager: Pull"
+      },
+      {
+        "command": "branchManager.push",
+        "title": "Branch Manager: Push"
+      },
+      {
+        "command": "branchManager.compareWithCurrent",
+        "title": "Branch Manager: Compare with Current"
+      },
+      {
+        "command": "branchManager.mergeIntoCurrent",
+        "title": "Branch Manager: Merge into Current"
+      },
+      {
+        "command": "branchManager.rebaseCurrentOntoSelected",
+        "title": "Branch Manager: Rebase Current onto Selected"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "branchManagerContainer",
+          "title": "Git Branches",
+          "icon": "resources/branch-manager.svg"
+        }
+      ]
+    },
+    "views": {
+      "branchManagerContainer": [
+        {
+          "id": "branchManager.view",
+          "name": "Branches"
+        }
+      ],
+      "scm": [
+        {
+          "id": "branchManager.scmView",
+          "name": "Branches"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "branchManager.refresh",
+          "when": "view == branchManager.view || view == branchManager.scmView",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.7.0"
+  }
+}
