@@ -16,7 +16,7 @@
 
 - refresh;
 - fetch all remotes;
-- repository selector, если repositories несколько;
+- switch repository (navigation, всегда видна — открывает QuickPick);
 - возможно quick action для create branch, если это не ломает UX.
 
 ## Tree Item Context Menu
@@ -25,16 +25,23 @@
 
 - checkout;
 - new branch from selected;
-- rename branch;
-- delete branch;
-- merge into current;
-- rebase current onto selected.
+- copy branch name, copy commit SHA, copy upstream name;
+- rename branch (non-current);
+- delete branch (non-current, two-step);
+- pull / push / reset to remote (local);
+- merge into current, rebase current onto selected (с merge-risk hint в диалоге).
 
-На empty state item доступны только:
+На repository root доступны recovery и гигиена:
 
-- open folder / open repository guidance;
-- refresh;
-- repository selection, если есть несколько repositories.
+- create branch, fetch remotes;
+- abort merge, abort rebase;
+- filter branches, toggle grouping by prefix;
+- delete merged branches, prune gone branches;
+- switch repository (дубль через палитру).
+
+## Empty State
+
+Без репозитория view показывает `viewsWelcome` с кнопками: Open Folder (`vscode.openFolder`), Initialize Repository (`git.init`), Clone Repository (`git.clone`). Условие: `!branchManager.hasRepository`.
 
 ## Source Control View
 

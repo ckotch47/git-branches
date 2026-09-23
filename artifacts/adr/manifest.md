@@ -9,6 +9,8 @@
 - пользователь открывает вкладку/вьюху расширения;
 - вызывается одна из команд расширения.
 
+Реализация: явный `activationEvents` — `onView:branchManager.scmView` + `onCommand:` для каждой команды (без этого extension с `main` не активируется вообще — проверено сборкой vsix).
+
 ## Contributions
 
 Нужны следующие разделы manifest:
@@ -16,19 +18,27 @@
 - `contributes.views`
   - view внутри `scm` container;
   - один `TreeDataProvider` для дерева веток.
+- `contributes.viewsWelcome`
+  - empty state с кнопками Open Folder / Init / Clone, `when: !branchManager.hasRepository`.
 - `contributes.commands`
   - `refresh`;
   - `fetchRemotes`;
   - `checkout`;
   - `createBranch`;
   - `createBranchFromSelected`;
-  - `deleteBranch`;
+  - `copyBranchName`, `copyCommitSha`, `copyUpstreamName`;
+  - `deleteBranch` (+ `deleteMergedBranches`, `pruneGoneBranches`);
   - `renameBranch`;
   - `pull`;
   - `push`;
   - `mergeIntoCurrent`;
   - `rebaseCurrentOntoSelected`;
-  - `checkoutAndRebaseOntoSelected`.
+  - `checkoutAndRebaseOntoSelected`;
+  - `resetToRemote`;
+  - `abortMerge`, `abortRebase`;
+  - `switchRepository`;
+  - `filterBranches`, `toggleBranchGrouping`;
+  - `openGraph` (read-only commit graph panel).
 - `contributes.menus`
   - контекстное меню для tree items;
   - toolbar actions для view;

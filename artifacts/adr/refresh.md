@@ -37,6 +37,15 @@ Refresh запускается:
 - по завершении refresh обновить context keys;
 - если операция завершилась ошибкой, не заменять текущий snapshot частично.
 
+## Реализация (факт)
+
+- In-flight дедупликация в `BranchViewProvider.ensureSnapshot`: параллельные запросы делят один `buildSnapshot`.
+- Transient TTL 1500мс (burst-окно, сбрасывается на `refresh()`, не переживает restart).
+- Ahead/behind считаются пулом max 8 параллельных `rev-list` вместо неограниченного `Promise.all`.
+- FileSystemWatcher на `.git/{HEAD,refs/**,index}` с debounce 500мс + best-effort подписка на VS Code Git extension API; watcher пересоздается при смене репозитория и dispose-ится с контекстом.
+- Watcher-триггеры делают только локальный rebuild (без fetch) — сетевые операции только по явным командам.
+- Полного queue/cancel устаревших refresh нет: in-flight + TTL покрывают burst-окно MVP; очередь — при росте жалоб на больших репо.
+
 ## Recommendation
 
 Refresh pipeline должен быть централизован в application layer. UI и git adapter не должны самостоятельно запускать параллельные обновления.

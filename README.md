@@ -19,16 +19,31 @@ The extension provides:
 
 - refresh branch data
 - fetch all remotes
+- switch repository (multi-repo workspaces)
+- filter branches by text (current branch always visible)
+- group local branches by prefix (`feature/`, `bugfix/` — toggle, in-memory only)
 - checkout branches
 - create new branches
 - create a branch from the selected branch
-- rename branches
-- delete branches
-- pull and push
-- merge into current branch
+- rename branches (validated before git runs)
+- delete branches (safe `-d` first, force `-D` only after second confirmation)
+- delete merged branches and prune branches with gone upstream (batch, with preview)
+- pull and push (auto `--set-upstream` on first publish)
+- merge into current branch (with ahead/behind hint in the dialog)
 - rebase current branch onto a selected branch
 - checkout and rebase onto a selected branch
-- copy branch name
+- reset a branch to its remote (current: `reset --hard`; others: `branch -f`)
+- abort merge / abort rebase
+- copy branch name, commit SHA, upstream name
+- stash & continue flow when uncommitted changes block an operation
+
+## Commit graph
+
+`Show Commit Graph` (repository root menu or command palette) opens a read-only
+graph panel: lanes for merged branches, ref badges, text filter, all/current
+modes, commit details with file list, compare of any branch vs current with
+per-file diff, and checkout right from the graph. Refreshes automatically with
+the branch tree.
 
 ## Usage
 
@@ -60,6 +75,14 @@ npm run build
 ```
 
 Then press `F5` in VS Code to launch the Extension Development Host.
+
+## Testing
+
+```bash
+npm test
+```
+
+Unit tests (`test/unit`) cover pure helpers; integration tests (`test/integration`) run real git in temp repos. No VS Code instance needed.
 
 ## Notes
 

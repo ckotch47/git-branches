@@ -14,10 +14,21 @@
 - branch already exists;
 - branch cannot be deleted;
 - branch cannot be checked out;
-- upstream missing;
+- upstream missing (`git_no_upstream` — actionable: push with `--set-upstream`);
 - merge/rebase precondition failed;
 - detached HEAD limitations;
-- permission or filesystem failures.
+- permission or filesystem failures;
+- dirty worktree (`git_dirty_worktree` — ведет в Stash & Continue флоу, а не в тупик);
+- invalid branch name (`invalid_branch_name` — проверка до вызова git через `check-ref-format`);
+- not fully merged (`git_not_fully_merged` — ведет во второй диалог force delete);
+- nothing to abort (`git_nothing_to_abort`);
+- stash pop conflict (`git_stash_conflict` — изменения остаются в stash).
+
+Реализация: `normalizeGitError` сохраняет domain-коды (`BranchManagerError` с не-`git_error` кодом проходит как есть), сырой git-текст маппится в коды выше.
+
+## Stash Flow
+
+Операции, требующие чистого дерева (checkout, merge, rebase, reset текущей), при dirty показывают «Stash & Continue» вместо голой ошибки. Stash делается с `-u` (untracked тоже, иначе дерево останется dirty). После операции stash возвращается автоматически (`pop`); конфликт pop не теряет данные — stash-запись остается, пользователь видит actionable-ошибку.
 
 ## UX Rules
 

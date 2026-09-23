@@ -96,6 +96,58 @@
 - Validation: current branch exists and is local, target branch exists.
 - Confirmation: required before execution.
 
+### Reset to Remote
+
+- Available on: local branch (current or non-current).
+- Effect: current → `fetch` + `reset --hard <remote>` (requires clean tree or stash flow); non-current → `fetch` + `branch -f <local> <remote>`.
+- Remote resolved from `upstream`, fallback `origin/<name>`; missing remote ref is an actionable error.
+- Confirmation: required, shows divergence (`+ahead/-behind`).
+
+### Delete Branch (two-step)
+
+- Safe path first: `branch -d`. On `not fully merged` a second modal confirmation offers force delete (`branch -D`).
+- Other failures (e.g. git errors) never trigger the force prompt.
+
+### Push (publish flow)
+
+- If the branch has no upstream, push uses `--set-upstream` (published as "Publish"); otherwise plain push.
+- Missing upstream is a distinct `git_no_upstream` error, not raw git output.
+
+### Abort Merge / Abort Rebase
+
+- Available on: repository root (recovery actions after failed merge/rebase).
+- Effect: `merge --abort` / `rebase --abort`; "nothing in progress" is a friendly message.
+
+### Switch Repository
+
+- Available: always with a repository context; toolbar button + command palette.
+- Effect: QuickPick over discovered repositories, re-attaches watcher and refreshes.
+
+### Filter Branches
+
+- Effect: in-memory substring filter (case-insensitive); current branch always visible; empty result shows a message node; active filter shown in view message.
+
+### Delete Merged / Prune Gone
+
+- Batch hygiene on repository root, each with preview list in confirm dialog.
+- Delete Merged: `branch --merged <current>`, safe-delete only, per-branch skip on failure with summary.
+- Prune Gone: upstream `[gone]` detection; uses `-D` because gone branches are usually unmerged (squash merges) — names listed in confirm.
+
+### Copy Commit SHA / Copy Upstream Name
+
+- Non-destructive helpers on branch items; upstream copy reports when no upstream exists.
+
+### Toggle Grouping by Prefix
+
+- In-memory toggle (default off, never persisted): groups `Local` children by first path segment (`feature/`, `bugfix/`).
+
+### Show Commit Graph
+
+- Opens a read-only commit graph Webview panel for the active repository.
+- Modes: all branches / current branch; text filter; click selects a commit and shows files.
+- From a branch ref: checkout, compare vs current (file list with diff open), copy SHA.
+- Refreshes through the shared refresh path (manual + watcher).
+
 ## Context Keys
 
 Нужны следующие ключи:

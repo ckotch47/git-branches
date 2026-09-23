@@ -36,6 +36,16 @@
 | Refresh after action | Tree is rebuilt and selection context is updated |
 | Git command failure | Error message is shown and tree does not enter partial state |
 | Upstream missing | Push/pull flow shows actionable message |
+| Dirty working tree | Stash & Continue offered instead of dead-end error |
+| Invalid branch name | Rejected before git with actionable message |
+| Reset to remote | Confirmation shows divergence; current uses reset --hard, non-current uses branch -f |
+| Force delete | Second confirmation only on not-fully-merged; other errors never prompt |
+| Delete merged | Preview list in confirm; summary deleted/skipped afterwards |
+| Prune gone | Preview list in confirm; uses -D (gone branches are usually unmerged) |
+| Abort merge/rebase | Tree recovers; nothing-in-progress shows friendly message |
+| Switch repository | Watcher re-attached, tree rebuilt for the new repo |
+| Filter branches | Current always visible; no-match shows message node |
+| External git change | Tree auto-refreshes via watcher (no manual Refresh needed) |
 
 ## Per-command Checks
 

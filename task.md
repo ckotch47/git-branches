@@ -36,7 +36,7 @@
 
 - [x] показать дерево в `Source Control` и custom container;
 - [x] отрисовать `Local / remote groups`;
-- [ ] добавить search/filter каркас;
+- [x] добавить search/filter каркас;
 - [x] empty state не ломает view;
 - [x] `npm run build` проходит;
 - [x] визуально tree соответствует ADR.
@@ -76,18 +76,18 @@
 - [x] проверить `delete`;
 - [x] проверить `merge`;
 - [x] проверить `rebase`;
-- [ ] пройтись по полной QA matrix;
-- [ ] подтвердить крайние сценарии;
-- [ ] сценарии из `artifacts/adr/qa-matrix.md` покрыты;
-- [ ] нет расхождений между ADR и реализацией;
-- [ ] можно выделить оставшиеся gaps.
+- [x] пройтись по полной QA matrix;
+- [x] подтвердить крайние сценарии;
+- [x] сценарии из `artifacts/adr/qa-matrix.md` покрыты;
+- [x] нет расхождений между ADR и реализацией;
+- [x] можно выделить оставшиеся gaps.
 
 ## Remaining Edge Cases
 
 - [x] `dirty working tree` - незакоммиченные изменения не ломают команды.
-- [ ] `missing/stale upstream` - у локальной ветки upstream отсутствует или устарел, и нужно убедиться, что это не ломает команды и расчёт статуса.
+- [x] `missing/stale upstream` - push с auto `--set-upstream`, pull/push показывают actionable ошибку `git_no_upstream`.
 - [x] `remote refresh after push/fetch` - после `push` или `fetch` список remote-веток обновляется корректно.
-- [ ] `multiple repositories in workspace` - в одном workspace больше одного Git repository, и нужно проверить selector репозитория.
+- [x] `multiple repositories in workspace` - команда `Switch Repository` + реакция на смену workspace + watcher per-repo.
 - [x] `detached HEAD` - checkout/switch на commit проверен, ветки продолжают отображаться, `HEAD` пустой, показывается message.
 - [x] `copy branch name` - доступно для local/remote веток.
 
@@ -97,6 +97,25 @@
 - Создан каркас проекта `src/` с основными слоями.
 - Добавлен manifest и базовая регистрация command/view ids.
 - Сборка `npm run build` проходит.
+
+## Wave 2 (all phases delivered)
+
+- [x] тесты: `node:test`, `npm test` (unit + integration на реальном git), 45 тестов;
+- [x] чистка мёртвого кода (`rebaseBranch`, `branchViewActions`, стабы живут только там где реализованы);
+- [x] производительность: пул ahead/behind (8), transient TTL 1500мс, in-flight дедупликация;
+- [x] живость: `.git`-watcher + Git extension API + `Switch Repository` + реакция на workspace;
+- [x] `Filter Branches` + сортировка current-first;
+- [x] Stash & Continue, валидация имён через `check-ref-format`, сохранение domain-кодов ошибок;
+- [x] гигиена: Delete Merged (`-d`), Prune Gone (`-D` с превью), Copy SHA/Upstream;
+- [x] P2: группировка по префиксу (default off), merge-risk hint в диалоге, viewsWelcome с кнопками;
+- [x] фикс: добавлен `activationEvents` (без него extension не активировался вообще) + `.vscodeignore`, vsix пересобран.
+
+## Wave 3: Commit Graph (read-only)
+
+- [x] `src/graph/`: сбор `git log`, lanes-алгоритм, compare (файлы коммита/диапазона);
+- [x] Webview-панель: lanes-рендер, бейджи refs, фильтр, режимы all/current, детали, compare с diff, checkout;
+- [x] поправка к ADR (graph read-only; запрет merge/conflict UI в силе);
+- [x] тесты lanes/парсинга + integration на реальном git с мержем (54 теста).
 
 ## Notes
 
