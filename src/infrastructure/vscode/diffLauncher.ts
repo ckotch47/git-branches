@@ -6,14 +6,15 @@ export async function openDiffView(
   leftContent: string,
   rightLabel: string,
   rightContent: string,
+  language?: string,
 ): Promise<void> {
   const left = await workspace.openTextDocument({
     content: leftContent,
-    language: "markdown",
+    language: language ?? "markdown",
   });
   const right = await workspace.openTextDocument({
     content: rightContent,
-    language: "markdown",
+    language: language ?? "markdown",
   });
 
   await commands.executeCommand(

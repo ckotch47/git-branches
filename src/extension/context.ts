@@ -12,4 +12,5 @@ export const contextKeys = {
   canPush: "branchManager.canPush",
   canMerge: "branchManager.canMerge",
   canRebase: "branchManager.canRebase",
+  hasMultipleRepositories: "branchManager.hasMultipleRepositories",
 } as const;

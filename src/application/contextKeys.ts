@@ -9,3 +9,7 @@ export async function updateContextKeys(snapshot: TreeSnapshot | null): Promise<
   await commands.executeCommand("setContext", contextKeys.canMerge, snapshot?.state === "normal");
   await commands.executeCommand("setContext", contextKeys.canRebase, snapshot?.state === "normal");
 }
+
+export async function updateRepositoryCount(count: number): Promise<void> {
+  await commands.executeCommand("setContext", contextKeys.hasMultipleRepositories, count > 1);
+}

@@ -11,4 +11,15 @@ export type BranchCommand =
   | "push"
   | "mergeIntoCurrent"
   | "rebaseCurrentOntoSelected"
-  | "checkoutAndRebaseOntoSelected";
+  | "checkoutAndRebaseOntoSelected"
+  | "resetToRemote"
+  | "abortMerge"
+  | "abortRebase"
+  | "switchRepository"
+  | "filterBranches"
+  | "deleteMergedBranches"
+  | "pruneGoneBranches"
+  | "copyCommitSha"
+  | "copyUpstreamName"
+  | "toggleBranchGrouping"
+  | "openGraph";

@@ -9,6 +9,7 @@ export class BranchTreeItem extends TreeItem {
     public readonly itemType: BranchTreeItemType,
     public readonly branch?: BranchRef,
     public readonly remoteName?: string,
+    public readonly prefix?: string,
   ) {
     super(
       label,

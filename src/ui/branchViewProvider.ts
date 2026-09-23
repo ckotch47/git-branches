@@ -4,9 +4,15 @@ import type { BranchRef } from "../domain/branch";
 import type { RepositoryContext } from "../domain/repository";
 import { SimpleGitRepository } from "../infrastructure/git/simpleGitRepository";
 import { buildSnapshot } from "../tree/snapshotBuilder";
+import { buildBranchTooltip, collectRemoteNames, formatAheadBehind, shortRemoteBranchName, sortBranchesForView } from "../tree/branchFormat";
+import { matchesBranchFilter } from "../tree/treeFilter";
+import { groupLocalBranches, prefixOf } from "../tree/branchGrouping";
 import { BranchTreeItem } from "./branchTreeItem";
 import type { BranchViewState } from "./branchViewState";
 import type { TreeSnapshot } from "../tree/treeModel";
+
+/** Transient burst-window cache (ms). Cleared on refresh(); never survives restart. */
+const SNAPSHOT_TTL_MS = 1500;
 
 export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
   private readonly onDidChangeTreeDataEmitter = new EventEmitter<
@@ -15,9 +21,14 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
 
   private readonly gitRepository = new SimpleGitRepository();
   private snapshot: TreeSnapshot | null = null;
+  private snapshotPromise: Promise<TreeSnapshot> | null = null;
+  private snapshotFetchedAt = 0;
   private readonly state: BranchViewState = {
     repository: null,
   };
+  private filter: string | null = null;
+  /** In-memory only, default off, never persisted (ADR: no persistent state). */
+  private groupByPrefix = false;
 
   readonly onDidChangeTreeData: Event<
     void | BranchTreeItem | BranchTreeItem[] | null | undefined
@@ -27,6 +38,25 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
     this.state.repository = repository;
     this.state.repositoryId = repository?.rootPath;
     this.snapshot = null;
+    this.snapshotPromise = null;
+    this.snapshotFetchedAt = 0;
+    this.filter = null;
+  }
+
+  setFilter(filter: string | null): void {
+    this.filter = filter;
+  }
+
+  getFilter(): string | null {
+    return this.filter;
+  }
+
+  setGroupByPrefix(enabled: boolean): void {
+    this.groupByPrefix = enabled;
+  }
+
+  isGroupByPrefix(): boolean {
+    return this.groupByPrefix;
   }
 
   getRepository(): RepositoryContext | null {
@@ -50,7 +80,15 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
       return "Detached HEAD";
     }
 
-    return undefined;
+    const flags: string[] = [];
+    if (this.filter) {
+      flags.push(`Filter: "${this.filter}"`);
+    }
+    if (this.groupByPrefix) {
+      flags.push("Grouped by prefix");
+    }
+
+    return flags.join(" · ") || undefined;
   }
 
   async getSnapshot(): Promise<TreeSnapshot | null> {
@@ -86,26 +124,59 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
         return [];
       }
 
-      const remoteNames = collectRemoteNames(branches);
+      const visible = branches.filter((branch) => matchesBranchFilter(branch, this.filter));
+      if (this.filter && visible.length === 0) {
+        return [new BranchTreeItem(`No branches match "${this.filter}"`, "message")];
+      }
+
+      const remoteNames = collectRemoteNames(visible);
+      const hasLocal = visible.some((branch) => !branch.isRemote);
 
       return [
-        new BranchTreeItem("Local", "root"),
+        ...(hasLocal ? [new BranchTreeItem("Local", "root")] : []),
         ...remoteNames.map((remoteName) => new BranchTreeItem(remoteName, "remoteGroup", undefined, remoteName)),
       ];
     }
 
     if (element.label === "Local") {
-      return branches
-        .filter((branch) => !branch.isRemote)
-        .sort((left, right) => left.displayName.localeCompare(right.displayName))
-        .map((branch) => this.toBranchItem(branch));
+      const locals = branches.filter((branch) => !branch.isRemote && matchesBranchFilter(branch, this.filter));
+
+      if (this.groupByPrefix) {
+        const groups = groupLocalBranches(locals);
+        const groupedNames = new Set(groups.flatMap((group) => group.branches.map((branch) => branch.name)));
+        const ungrouped = locals.filter((branch) => !groupedNames.has(branch.name));
+        return [
+          ...groups.map(
+            (group) => new BranchTreeItem(`${group.prefix}/`, "group", undefined, undefined, group.prefix),
+          ),
+          ...sortBranchesForView(ungrouped).map((branch) => this.toBranchItem(branch)),
+        ];
+      }
+
+      return sortBranchesForView(locals).map((branch) => this.toBranchItem(branch));
+    }
+
+    if (element.itemType === "group" && element.prefix) {
+      const prefix = element.prefix;
+      return sortBranchesForView(
+        branches.filter(
+          (branch) =>
+            !branch.isRemote &&
+            prefixOf(branch.displayName) === prefix &&
+            matchesBranchFilter(branch, this.filter),
+        ),
+      ).map((branch) => this.toBranchItem(branch));
     }
 
     if (element.itemType === "remoteGroup" && element.remoteName) {
-      return branches
-        .filter((branch) => branch.isRemote && branch.remoteName === element.remoteName)
-        .sort((left, right) => left.displayName.localeCompare(right.displayName))
-        .map((branch) => this.toBranchItem(branch));
+      return sortBranchesForView(
+        branches.filter(
+          (branch) =>
+            branch.isRemote &&
+            branch.remoteName === element.remoteName &&
+            matchesBranchFilter(branch, this.filter),
+        ),
+      ).map((branch) => this.toBranchItem(branch));
     }
 
     return [];
@@ -117,15 +188,30 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
 
   refresh(): void {
     this.snapshot = null;
+    this.snapshotPromise = null;
+    this.snapshotFetchedAt = 0;
     this.onDidChangeTreeDataEmitter.fire(undefined);
   }
 
   private async ensureSnapshot(): Promise<TreeSnapshot> {
-    if (!this.snapshot) {
-      this.snapshot = await buildSnapshot(this.gitRepository, this.state.repository!);
+    if (this.snapshot && Date.now() - this.snapshotFetchedAt < SNAPSHOT_TTL_MS) {
+      return this.snapshot;
     }
 
-    return this.snapshot;
+    if (!this.snapshotPromise) {
+      const repository = this.state.repository!;
+      this.snapshotPromise = buildSnapshot(this.gitRepository, repository)
+        .then((snapshot) => {
+          this.snapshot = snapshot;
+          this.snapshotFetchedAt = Date.now();
+          return snapshot;
+        })
+        .finally(() => {
+          this.snapshotPromise = null;
+        });
+    }
+
+    return this.snapshotPromise;
   }
 
   private toBranchItem(branch: BranchRef): BranchTreeItem {
@@ -143,58 +229,13 @@ export class BranchViewProvider implements TreeDataProvider<BranchTreeItem> {
       descriptionParts.push(aheadBehind);
     }
 
+    if (branch.lastCommitMessage) {
+      descriptionParts.push(branch.lastCommitMessage);
+    }
+
     item.description = descriptionParts.join(" · ") || undefined;
     item.tooltip = buildBranchTooltip(branch, label);
 
     return item;
   }
-}
-
-function collectRemoteNames(branches: BranchRef[]): string[] {
-  return branches
-    .filter((branch) => branch.isRemote)
-    .map((branch) => branch.remoteName ?? branch.name.split("/")[0] ?? "origin")
-    .filter((remoteName, index, list) => list.indexOf(remoteName) === index)
-    .sort((left, right) => left.localeCompare(right));
-}
-
-function shortRemoteBranchName(name: string): string {
-  return name.split("/").slice(1).join("/") || name;
-}
-
-function formatAheadBehind(branch: BranchRef): string {
-  const parts: string[] = [];
-
-  if (typeof branch.ahead === "number" && branch.ahead > 0) {
-    parts.push(`↑${branch.ahead}`);
-  }
-
-  if (typeof branch.behind === "number" && branch.behind > 0) {
-    parts.push(`↓${branch.behind}`);
-  }
-
-  return parts.join(" ");
-}
-
-function buildBranchTooltip(branch: BranchRef, label: string): string {
-  const lines: string[] = [`${label}`, `Full name: ${branch.name}`];
-
-  if (branch.upstream) {
-    lines.push(`Upstream: ${branch.upstream}`);
-  }
-
-  const aheadBehind = formatAheadBehind(branch);
-  if (aheadBehind) {
-    lines.push(`Status: ${aheadBehind}`);
-  }
-
-  if (branch.lastCommitMessage) {
-    lines.push(`Last commit: ${branch.lastCommitMessage}`);
-  }
-
-  if (branch.lastCommitDate) {
-    lines.push(`Updated: ${branch.lastCommitDate.toISOString()}`);
-  }
-
-  return lines.join("\n");
 }

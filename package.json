@@ -2,10 +2,37 @@
   "name": "vscode-branch-manager",
   "displayName": "Git Branches",
   "description": "Branch-focused Git management for VS Code.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "./out/extension/activate.js",
   "publisher": "local",
+  "activationEvents": [
+    "onView:branchManager.scmView",
+    "onCommand:branchManager.refresh",
+    "onCommand:branchManager.fetchRemotes",
+    "onCommand:branchManager.checkout",
+    "onCommand:branchManager.createBranch",
+    "onCommand:branchManager.createBranchFromSelected",
+    "onCommand:branchManager.copyBranchName",
+    "onCommand:branchManager.deleteBranch",
+    "onCommand:branchManager.renameBranch",
+    "onCommand:branchManager.pull",
+    "onCommand:branchManager.push",
+    "onCommand:branchManager.mergeIntoCurrent",
+    "onCommand:branchManager.rebaseCurrentOntoSelected",
+    "onCommand:branchManager.checkoutAndRebaseOntoSelected",
+    "onCommand:branchManager.resetToRemote",
+    "onCommand:branchManager.abortMerge",
+    "onCommand:branchManager.abortRebase",
+    "onCommand:branchManager.switchRepository",
+    "onCommand:branchManager.filterBranches",
+    "onCommand:branchManager.deleteMergedBranches",
+    "onCommand:branchManager.pruneGoneBranches",
+    "onCommand:branchManager.copyCommitSha",
+    "onCommand:branchManager.copyUpstreamName",
+    "onCommand:branchManager.toggleBranchGrouping",
+    "onCommand:branchManager.openGraph"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ckotch47/git-branches"
@@ -76,6 +103,51 @@
       {
         "command": "branchManager.checkoutAndRebaseOntoSelected",
         "title": "Checkout and Rebase Onto Selected"
+      },
+      {
+        "command": "branchManager.resetToRemote",
+        "title": "Reset to Remote"
+      },
+      {
+        "command": "branchManager.abortMerge",
+        "title": "Abort Merge"
+      },
+      {
+        "command": "branchManager.abortRebase",
+        "title": "Abort Rebase"
+      },
+      {
+        "command": "branchManager.switchRepository",
+        "title": "Switch Repository"
+      },
+      {
+        "command": "branchManager.filterBranches",
+        "title": "Filter Branches"
+      },
+      {
+        "command": "branchManager.deleteMergedBranches",
+        "title": "Delete Merged Branches"
+      },
+      {
+        "command": "branchManager.pruneGoneBranches",
+        "title": "Prune Branches with Gone Upstream"
+      },
+      {
+        "command": "branchManager.copyCommitSha",
+        "title": "Copy Commit SHA"
+      },
+      {
+        "command": "branchManager.copyUpstreamName",
+        "title": "Copy Upstream Name"
+      },
+      {
+        "command": "branchManager.toggleBranchGrouping",
+        "title": "Toggle Grouping by Prefix"
+      },
+      {
+        "command": "branchManager.openGraph",
+        "title": "Show Commit Graph",
+        "icon": "$(git-branch)"
       }
     ],
     "views": {
@@ -86,6 +158,13 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "branchManager.scmView",
+        "contents": "No Git repository found in this workspace.\n[Open Folder](command:vscode.openFolder)\n[Initialize Repository](command:git.init)\n[Clone Repository](command:git.clone)",
+        "when": "!branchManager.hasRepository"
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -99,6 +178,18 @@
           "when": "view == branchManager.scmView",
           "group": "navigation@2",
           "icon": "$(cloud-download)"
+        },
+        {
+          "command": "branchManager.openGraph",
+          "when": "view == branchManager.scmView",
+          "group": "navigation@3",
+          "icon": "$(git-branch)"
+        },
+        {
+          "command": "branchManager.switchRepository",
+          "when": "view == branchManager.scmView && branchManager.hasMultipleRepositories",
+          "group": "navigation@4",
+          "icon": "$(folder-opened)"
         }
       ],
       "view/item/context": [
@@ -153,6 +244,56 @@
           "group": "branch@10"
         },
         {
+          "command": "branchManager.resetToRemote",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "group": "branch@11"
+        },
+        {
+          "command": "branchManager.abortMerge",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@3"
+        },
+        {
+          "command": "branchManager.abortRebase",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@4"
+        },
+        {
+          "command": "branchManager.filterBranches",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@5"
+        },
+        {
+          "command": "branchManager.deleteMergedBranches",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@6"
+        },
+        {
+          "command": "branchManager.pruneGoneBranches",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@7"
+        },
+        {
+          "command": "branchManager.copyCommitSha",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|remoteBranch)/",
+          "group": "branch@12"
+        },
+        {
+          "command": "branchManager.copyUpstreamName",
+          "when": "view == branchManager.scmView && viewItem =~ /branchManager\\.(localBranch|currentBranch)/",
+          "group": "branch@13"
+        },
+        {
+          "command": "branchManager.toggleBranchGrouping",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@8"
+        },
+        {
+          "command": "branchManager.openGraph",
+          "when": "view == branchManager.scmView && viewItem == branchManager.root",
+          "group": "root@9"
+        },
+        {
           "command": "branchManager.createBranch",
           "when": "view == branchManager.scmView && viewItem == branchManager.root",
           "group": "root@1"
@@ -167,7 +308,8 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "watch": "tsc -p . -w"
+    "watch": "tsc -p . -w",
+    "test": "tsc -p tsconfig.test.json && node --test out-test/test/"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
