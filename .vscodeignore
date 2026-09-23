@@ -1,0 +1,13 @@
+.gitignore
+.vscode/**
+.vscode-test/**
+out-test/**
+src/**
+test/**
+artifacts/**
+task.md
+tsconfig.json
+tsconfig.test.json
+package-lock.json
+.git/**
+.opencode/**
