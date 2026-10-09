@@ -55,6 +55,7 @@ const COMMANDS = [
   ["Switch repository", "switchRepository"], ["Filter branches", "filter"], ["Toggle tree or flat branch view", "group"],
   ["Open commit graph", "graph"], ["Copy branch name", "copyBranch"], ["Copy commit SHA", "copySha"], ["Copy upstream", "copyUpstream"],
 ] as const;
+const BUSY_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"] as const;
 
 export function App({ repositories, startRepository }: Props): React.JSX.Element {
   const [repository, setRepository] = useState<RepositoryContext | null>(startRepository ?? null);
@@ -66,6 +67,8 @@ export function App({ repositories, startRepository }: Props): React.JSX.Element
   const [dialog, setDialog] = useState<Dialog>(null);
   const [status, setStatus] = useState("Ready");
   const [busy, setBusy] = useState(false);
+  const [busyAction, setBusyAction] = useState("");
+  const [busyFrame, setBusyFrame] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [commandIndex, setCommandIndex] = useState(0);
   const [graphMode, setGraphMode] = useState<"all" | "current">("all");
@@ -123,6 +126,11 @@ export function App({ repositories, startRepository }: Props): React.JSX.Element
     process.stdout.on("resize", updateSize);
     return () => { process.stdout.off("resize", updateSize); };
   }, []);
+  useEffect(() => {
+    if (!busy) { setBusyFrame(0); return; }
+    const timer = setInterval(() => setBusyFrame((frame) => (frame + 1) % BUSY_FRAMES.length), 90);
+    return () => clearInterval(timer);
+  }, [busy]);
   useEffect(() => {
     if (repository || repositories.length < 2) return;
     let active = true;
@@ -225,6 +233,7 @@ export function App({ repositories, startRepository }: Props): React.JSX.Element
     }
     let passphrase: string | undefined;
     let retried = false;
+    setBusyAction(title);
     setBusy(true);
     try {
       while (true) {
@@ -247,12 +256,13 @@ export function App({ repositories, startRepository }: Props): React.JSX.Element
         }
       }
     } finally {
-      setBusy(false);
       if (stashed) {
         try { await stashPop(repository.rootPath); setStatus((value) => `${value}; stashed changes restored`); }
         catch (error) { setStatus(errorText(error)); }
         await refresh();
       }
+      setBusy(false);
+      setBusyAction("");
     }
   }, [repository, confirm, prompt, refresh, status]);
 
@@ -695,7 +705,7 @@ export function App({ repositories, startRepository }: Props): React.JSX.Element
   return <Box flexDirection="column" paddingX={1} width={terminalColumns}>
     <Box justifyContent="space-between" flexDirection="row" paddingX={1}>
       <Text bold color="cyan">GIT BRANCHES</Text>
-      <Text color={busy ? "yellow" : "green"} bold>{busy ? "● WORKING" : "● READY"}</Text>
+      <Text color={busy ? "yellow" : "green"} bold wrap="truncate">{busy ? `${BUSY_FRAMES[busyFrame]} ${busyAction || "Working"}` : "● READY"}</Text>
     </Box>
     <Box paddingX={1}>
       <Text color="gray" wrap="truncate">{repository ? `${repository.displayName}  ·  ${repository.rootPath}` : "No repository selected"}</Text>
