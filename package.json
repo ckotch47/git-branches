@@ -309,6 +309,7 @@
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . -w",
+    "tui": "npm --prefix packages/tui run start --",
     "test": "tsc -p tsconfig.test.json && node --test out-test/test/"
   },
   "devDependencies": {

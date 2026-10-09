@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "rootDir": "../..",
+    "outDir": "dist",
+    "strict": true,
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node", "react"],
+    "jsx": "react-jsx",
+    "noEmitOnError": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

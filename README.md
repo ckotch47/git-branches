@@ -61,6 +61,22 @@ Common actions:
 - `Merge into Current` and `Rebase Current onto Selected` work on branch items that are valid for those actions.
 - `Copy Branch Name` copies the branch name to the clipboard.
 
+## Terminal TUI
+
+The terminal interface mirrors the branch and commit-graph workflows without starting VS Code. Install its isolated dependencies and register the `git-b` command once:
+
+```bash
+npm --prefix packages/tui install
+npm --prefix packages/tui run build
+npm --prefix packages/tui link
+```
+
+Run `git-b` from any Git workspace, or pass a workspace path with `git-b [workspace-path]`. The `npm run tui -- [workspace-path]` command remains available for development.
+
+Use the arrow keys to move between branches and panes, `Enter` to check out or open the selected item, `Tab` to open grouped actions, type to search action menus, and `Esc` to go back or exit. Text input works with any keyboard layout.
+
+The TUI requires Node.js 20 or newer. Its dependencies and package are kept out of the VS Code extension bundle.
+
 ## Requirements
 
 - VS Code 1.85 or newer

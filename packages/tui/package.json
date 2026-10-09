@@ -1,0 +1,22 @@
+{
+  "name": "@git-branches/tui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Terminal interface for Git Branches",
+  "engines": { "node": ">=20" },
+  "bin": { "git-b": "dist/packages/tui/src/cli.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/mark-shared-cjs.mjs",
+    "start": "npm run build && node dist/packages/tui/src/cli.js"
+  },
+  "dependencies": {
+    "ink": "6.3.0",
+    "react": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}

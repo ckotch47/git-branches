@@ -5,6 +5,7 @@ out-test/**
 src/**
 test/**
 artifacts/**
+packages/tui/**
 task.md
 tsconfig.json
 tsconfig.test.json
